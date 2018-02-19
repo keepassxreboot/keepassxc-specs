@@ -11,7 +11,7 @@
     date = 2018-02-19T00:00:00Z
     
     [pi]
-    symrefs = "no"
+    symrefs = "yes"
     private = "yes"
     
     [[author]]
@@ -46,7 +46,7 @@ Copyright (C) 2018 KeePassXC Team
 # Introduction
 
 This document describes the payload format used in KDBX (version 3.1 and
-4.0) files.  The payload is encoded as XML ("Extensible Markup Language" [@xml]).
+4.0) files.  The payload is encoded as XML ("Extensible Markup Language" [@!XML]).
 
 KDBX file format versions 3.1 and 4.0 use the same XML structure with minor
 differences in the tags supported.  A note is added where KDBX 3.1 and 4.0
@@ -55,6 +55,12 @@ differ.
 The XML payload itself is mostly self-contained, but may reference data
 from the outer KDBX container. A note is given where this is the case.
 
+# Conventions
+
+In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
+'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
+and 'OPTIONAL' in capital letters are used to indicate requirements
+ for the format specification. Their meaning is described in [@!RFC2119].
 
 # Security Considerations
 
@@ -62,12 +68,12 @@ KDBX is an encrypted container format.  The security of the XML payload
 described in the document depends on the strength of the cipher and
 passphrase / key file used for encrypting the encapsulating KDBX container.
 
-In addition, all security considerations for XML [@xml] apply as well,
+In addition, all security considerations for [@!XML] apply as well,
 including the use of recursive XML entities, which can consume an
 arbitrarily large amount of memory on the user's system during parsing.
 
 
-<reference anchor="xml" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
+<reference anchor="XML" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
     <front>
         <title>Extensible Markup Language (XML) 1.0 (Fifth Edition)</title>
         <author initials="T." surname="Bray" fullname="Tim Bray">

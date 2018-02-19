@@ -2,7 +2,7 @@
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd' []>
 <rfc ipr="trust200902" category="info" docName="keepass2-xml-rfc">
 <?rfc toc="yes"?>
-<?rfc symrefs="no"?>
+<?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
@@ -64,7 +64,7 @@ of KDBX-based password management applications.
 
 <section anchor="introduction" title="Introduction">
 <t>This document describes the payload format used in KDBX (version 3.1 and
-4.0) files.  The payload is encoded as XML (&quot;Extensible Markup Language&quot; <xref target="xml"/>).
+4.0) files.  The payload is encoded as XML (&quot;Extensible Markup Language&quot; <xref target="XML"/>).
 </t>
 <t>KDBX file format versions 3.1 and 4.0 use the same XML structure with minor
 differences in the tags supported.  A note is added where KDBX 3.1 and 4.0
@@ -75,12 +75,20 @@ from the outer KDBX container. A note is given where this is the case.
 </t>
 </section>
 
+<section anchor="conventions" title="Conventions">
+<t>In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
+'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
+and 'OPTIONAL' in capital letters are used to indicate requirements
+ for the format specification. Their meaning is described in <xref target="RFC2119"/>.
+</t>
+</section>
+
 <section anchor="security-considerations" title="Security Considerations">
 <t>KDBX is an encrypted container format.  The security of the XML payload
 described in the document depends on the strength of the cipher and
 passphrase / key file used for encrypting the encapsulating KDBX container.
 </t>
-<t>In addition, all security considerations for XML <xref target="xml"/> apply as well,
+<t>In addition, all security considerations for <xref target="XML"/> apply as well,
 including the use of recursive XML entities, which can consume an
 arbitrarily large amount of memory on the user's system during parsing.
 </t>
@@ -88,8 +96,9 @@ arbitrarily large amount of memory on the user's system during parsing.
 
 </middle>
 <back>
-<references title="Informative References">
-<reference anchor="xml" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
+<references title="Normative References">
+<?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?>
+<reference anchor="XML" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
     <front>
         <title>Extensible Markup Language (XML) 1.0 (Fifth Edition)</title>
         <author initials="T." surname="Bray" fullname="Tim Bray">

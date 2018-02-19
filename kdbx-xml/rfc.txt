@@ -31,15 +31,16 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   1
-   2.  Security Considerations . . . . . . . . . . . . . . . . . . .   2
-   3.  Informative References  . . . . . . . . . . . . . . . . . . .   2
+   2.  Conventions . . . . . . . . . . . . . . . . . . . . . . . . .   2
+   3.  Security Considerations . . . . . . . . . . . . . . . . . . .   2
+   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   2
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   2
 
 1.  Introduction
 
    This document describes the payload format used in KDBX (version 3.1
    and 4.0) files.  The payload is encoded as XML ("Extensible Markup
-   Language" [1]).
+   Language" [XML]).
 
    KDBX file format versions 3.1 and 4.0 use the same XML structure with
    minor differences in the tags supported.  A note is added where KDBX
@@ -52,27 +53,39 @@ Table of Contents
 
 
 
-
 Bevendorff               Expires August 23, 2018                [Page 1]
 
                               KeePass2 XML                 February 2018
 
 
-2.  Security Considerations
+2.  Conventions
+
+   In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
+   'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
+   and 'OPTIONAL' in capital letters are used to indicate requirements
+   for the format specification.  Their meaning is described in
+   [RFC2119].
+
+3.  Security Considerations
 
    KDBX is an encrypted container format.  The security of the XML
    payload described in the document depends on the strength of the
    cipher and passphrase / key file used for encrypting the
    encapsulating KDBX container.
 
-   In addition, all security considerations for XML [1] apply as well,
+   In addition, all security considerations for [XML] apply as well,
    including the use of recursive XML entities, which can consume an
    arbitrarily large amount of memory on the user's system during
    parsing.
 
-3.  Informative References
+4.  Normative References
 
-   [1]        Bray, T., Paoli, J., Sperberg-McQueen, C., Eve, E., and F.
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
+
+   [XML]      Bray, T., Paoli, J., Sperberg-McQueen, C., Eve, E., and F.
               Yergeau, "Extensible Markup Language (XML) 1.0 (Fifth
               Edition)", November 2008, <https://www.w3.org/TR/2008/REC-
               xml-20081126/>.
@@ -81,19 +94,6 @@ Author's Address
 
    Janek Bevendorff
    KeePassXC Team
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
