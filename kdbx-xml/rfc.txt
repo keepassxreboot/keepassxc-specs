@@ -1,0 +1,112 @@
+
+
+
+
+                                                           J. Bevendorff
+                                                          KeePassXC Team
+                                                       February 19, 2018
+
+
+                      KeePass2 XML Payload Format
+                            keepass2-xml-rfc
+
+Abstract
+
+   This document describes the XML payload format used in KDBX 3.1 and
+   4.0 containers.  KDBX is an encrypted, XML-based container format for
+   secure password storage used by KeePass 2.x, KeePassXC and various
+   other password managers.  This document only describes the actual XML
+   payload and not the KDBX container format itself.
+
+Status of This Memo
+
+   This document is not an Internet Standards Track specification; it is
+   published for informational purposes with the goal to support
+   development of KDBX-based password management applications.
+
+Copyright Notice
+
+   Copyright (C) 2018 KeePassXC Team
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   1
+   2.  Security Considerations . . . . . . . . . . . . . . . . . . .   2
+   3.  Informative References  . . . . . . . . . . . . . . . . . . .   2
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   2
+
+1.  Introduction
+
+   This document describes the payload format used in KDBX (version 3.1
+   and 4.0) files.  The payload is encoded as XML ("Extensible Markup
+   Language" [1]).
+
+   KDBX file format versions 3.1 and 4.0 use the same XML structure with
+   minor differences in the tags supported.  A note is added where KDBX
+   3.1 and 4.0 differ.
+
+   The XML payload itself is mostly self-contained, but may reference
+   data from the outer KDBX container.  A note is given where this is
+   the case.
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 1]
+
+                              KeePass2 XML                 February 2018
+
+
+2.  Security Considerations
+
+   KDBX is an encrypted container format.  The security of the XML
+   payload described in the document depends on the strength of the
+   cipher and passphrase / key file used for encrypting the
+   encapsulating KDBX container.
+
+   In addition, all security considerations for XML [1] apply as well,
+   including the use of recursive XML entities, which can consume an
+   arbitrarily large amount of memory on the user's system during
+   parsing.
+
+3.  Informative References
+
+   [1]        Bray, T., Paoli, J., Sperberg-McQueen, C., Eve, E., and F.
+              Yergeau, "Extensible Markup Language (XML) 1.0 (Fifth
+              Edition)", November 2008, <https://www.w3.org/TR/2008/REC-
+              xml-20081126/>.
+
+Author's Address
+
+   Janek Bevendorff
+   KeePassXC Team
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 2]

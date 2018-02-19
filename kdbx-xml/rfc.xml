@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd' []>
+<rfc ipr="trust200902" category="info" docName="keepass2-xml-rfc">
+<?rfc toc="yes"?>
+<?rfc symrefs="no"?>
+<?rfc sortrefs="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<?rfc private="yes"?>
+<?rfc topblock="yes"?>
+<?rfc comments="no"?>
+<front>
+<title abbrev="KeePass2 XML">KeePass2 XML Payload Format</title>
+
+<author initials="J." surname="Bevendorff" fullname="Janek Bevendorff">
+<organization>KeePassXC Team</organization>
+<address>
+<postal>
+<street></street>
+<city></city>
+<code></code>
+<country></country>
+<region></region>
+</postal>
+<phone></phone>
+<email></email>
+<uri></uri>
+</address>
+</author>
+<date year="2018" month="February" day="19"/>
+
+<area>Internet</area>
+<workgroup></workgroup>
+<keyword>keepass</keyword>
+<keyword>keepassxc</keyword>
+
+
+<abstract>
+<t>This document describes the XML payload format used in KDBX 3.1 and 4.0
+containers.  KDBX is an encrypted, XML-based container format for secure
+password storage used by KeePass 2.x, KeePassXC and various other password
+managers.  This document only describes the actual XML payload and not
+the KDBX container format itself.
+</t>
+</abstract>
+
+
+<note title="Status of This Memo">
+<t>This document is not an Internet Standards Track specification; it is
+published for informational purposes with the goal to support development
+of KDBX-based password management applications.
+</t>
+</note>
+
+
+<note title="Copyright Notice">
+<t>Copyright (C) 2018 KeePassXC Team
+</t>
+</note>
+
+</front>
+
+<middle>
+
+<section anchor="introduction" title="Introduction">
+<t>This document describes the payload format used in KDBX (version 3.1 and
+4.0) files.  The payload is encoded as XML (&quot;Extensible Markup Language&quot; <xref target="xml"/>).
+</t>
+<t>KDBX file format versions 3.1 and 4.0 use the same XML structure with minor
+differences in the tags supported.  A note is added where KDBX 3.1 and 4.0
+differ.
+</t>
+<t>The XML payload itself is mostly self-contained, but may reference data
+from the outer KDBX container. A note is given where this is the case.
+</t>
+</section>
+
+<section anchor="security-considerations" title="Security Considerations">
+<t>KDBX is an encrypted container format.  The security of the XML payload
+described in the document depends on the strength of the cipher and
+passphrase / key file used for encrypting the encapsulating KDBX container.
+</t>
+<t>In addition, all security considerations for XML <xref target="xml"/> apply as well,
+including the use of recursive XML entities, which can consume an
+arbitrarily large amount of memory on the user's system during parsing.
+</t>
+</section>
+
+</middle>
+<back>
+<references title="Informative References">
+<reference anchor="xml" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
+    <front>
+        <title>Extensible Markup Language (XML) 1.0 (Fifth Edition)</title>
+        <author initials="T." surname="Bray" fullname="Tim Bray">
+            <organization>Textuality and Netscape</organization>
+            <address>
+                <email>tbray@textuality.com</email>
+            </address>
+        </author>
+        <author initials="J." surname="Paoli" fullname="Jean Paoli">
+            <organization>Microsoft</organization>
+            <address>
+                <email>jeanpa@microsoft.com</email>
+            </address>
+        </author>
+        <author initials="C. M." surname="Sperberg-McQueen" fullname="C. M. Sperberg-McQueen">
+            <organization>W3C</organization>
+            <address>
+                <email>cmsmcq@w3.org</email>
+            </address>
+        </author>
+        <author initials="E." surname="Eve" fullname="Eve Maler">
+            <organization>Sun Microsystems, Inc.</organization>
+            <address>
+                <email>eve.maler@east.sun.com</email>
+            </address>
+        </author>
+        <author initials="F." surname="Yergeau" fullname="François Yergeau"/>
+        <date day="26" month="November" year="2008"/>
+    </front>
+</reference>
+</references>
+
+</back>
+</rfc>
