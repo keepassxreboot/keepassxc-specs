@@ -129,7 +129,7 @@
                     <xs:simpleContent>
                         <xs:extension base="xs:base64Binary">
                             <xs:attributeGroup ref="ProtectionAttributes"/>
-                            <xs:attribute name="Ref" type="xs:integer" use="required"/>
+                            <xs:attribute name="Ref" type="xs:integer"/>
                         </xs:extension>
                     </xs:simpleContent>
                 </xs:complexType>
