@@ -61,6 +61,83 @@ In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
 'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
 and 'OPTIONAL' in capital letters are used to indicate requirements
  for the format specification. Their meaning is described in [@!RFC2119].
+ 
+ If not explicitly referring to *this* RFC document, the term 'Document'
+ refers to the XML payload document of the KDBX container.
+ 
+ Furthermore, the term 'Database' is used to refer to the full KDBX file
+ and its contained data structures.
+
+# General Structure
+
+A KeePass XML document SHOULD start with an XML declaration.  The encoding of
+ the XML document MUST be UTF-8 [@!RFC3629].
+ 
+ The XML document MUST have a root element named `KeePassFile`.  The
+ `KeePassFile` root element MUST have exactly two child nodes `Meta`
+ and `Root`:
+
+~~~
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<KeePassFile>
+    <Meta>
+        <!-- Database meta data -->
+    </Meta>
+    <Root>
+        <!-- Database group and entry tree -->
+    </Root>
+</KeePassFile>
+~~~
+
+`Meta` is the parent element for general database meta data, while `Root`
+contains the actual database structure.
+
+The database structure under `Root` is a tree of *groups*.
+
+A *group* is an element with various attributes defined in (#database-groups),
+containing zero or more *entries*.  A group can also contain zero or
+more sub groups, which can again contain entries.  
+
+An *entry* is a set of user credentials with key-value attributes defined in
+ (#database-entries).
+
+The database MUST have exactly one *root group* which is a direct ancestor
+of the `Root` element containing all other groups and entries.
+
+## Database Meta Data
+
+The `Meta` element MAY contain any of the following elements to describe
+various database meta data:
+
+`Generator`
+:   The name of the program that generated the KDBX file.
+
+`DatabaseName`
+:   An optional name for the KDBX database.
+
+`DatabaseNameChanged`
+:   ISO 8601 datetime [@!RFC3339] of the last change of `DatabaseName`.
+
+`DatabaseDescription`
+:   An optional description of the KDBX database.
+
+`DatabaseDescriptionChanged`
+:   ISO 8601 datetime [@!RFC3339] of the last change of `DatabaseDescription`.
+
+`DefaultUserName`
+:   The username to use as a default when creating a new entry in the database.
+
+`DefaultUserNameChanged`
+:   ISO 8601 datetime [@!RFC3339] of the last change of `DefaultUserName`.
+
+`MaintenanceHistoryDays`
+:   The age of the oldest history item to keep in days.
+
+All of the above-described child elements of `Meta` MAY also be empty.
+
+## Database Groups
+
+## Database Entries
 
 # Security Considerations
 

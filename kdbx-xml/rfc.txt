@@ -32,9 +32,13 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   1
    2.  Conventions . . . . . . . . . . . . . . . . . . . . . . . . .   2
-   3.  Security Considerations . . . . . . . . . . . . . . . . . . .   2
-   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   2
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   3.  General Structure . . . . . . . . . . . . . . . . . . . . . .   2
+     3.1.  Database Meta Data  . . . . . . . . . . . . . . . . . . .   3
+     3.2.  Database Groups . . . . . . . . . . . . . . . . . . . . .   3
+     3.3.  Database Entries  . . . . . . . . . . . . . . . . . . . .   3
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   3
+   5.  Normative References  . . . . . . . . . . . . . . . . . . . .   4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   4
 
 1.  Introduction
 
@@ -46,10 +50,6 @@ Table of Contents
    minor differences in the tags supported.  A note is added where KDBX
    3.1 and 4.0 differ.
 
-   The XML payload itself is mostly self-contained, but may reference
-   data from the outer KDBX container.  A note is given where this is
-   the case.
-
 
 
 
@@ -57,6 +57,10 @@ Bevendorff               Expires August 23, 2018                [Page 1]
 
                               KeePass2 XML                 February 2018
 
+
+   The XML payload itself is mostly self-contained, but may reference
+   data from the outer KDBX container.  A note is given where this is
+   the case.
 
 2.  Conventions
 
@@ -66,7 +70,88 @@ Bevendorff               Expires August 23, 2018                [Page 1]
    for the format specification.  Their meaning is described in
    [RFC2119].
 
-3.  Security Considerations
+   If not explicitly referring to _this_ RFC document, the term
+   'Document' refers to the XML payload document of the KDBX container.
+
+   Furthermore, the term 'Database' is used to refer to the full KDBX
+   file and its contained data structures.
+
+3.  General Structure
+
+   A KeePass XML document SHOULD start with an XML declaration.  The
+   encoding of the XML document MUST be UTF-8 [RFC3629].
+
+   The XML document MUST have a root element named "KeePassFile".  The
+   "KeePassFile" root element MUST have exactly two child nodes "Meta"
+   and "Root":
+
+          <?xml version="1.0" encoding="utf-8" standalone="yes"?>
+          <KeePassFile>
+              <Meta>
+                  <!-- Database meta data -->
+              </Meta>
+              <Root>
+                  <!-- Database group and entry tree -->
+              </Root>
+          </KeePassFile>
+
+   "Meta" is the parent element for general database meta data, while
+   "Root" contains the actual database structure.
+
+   The database structure under "Root" is a tree of _groups_.
+
+   A _group_ is an element with various attributes defined in
+   Section 3.2, containing zero or more _entries_.  A group can also
+   contain zero or more sub groups, which can again contain entries.
+
+   An _entry_ is a set of user credentials with key-value attributes
+   defined in Section 3.3.
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 2]
+
+                              KeePass2 XML                 February 2018
+
+
+   The database MUST have exactly one _root group_ which is a direct
+   ancestor of the "Root" element containing all other groups and
+   entries.
+
+3.1.  Database Meta Data
+
+   The "Meta" element MAY contain any of the following elements to
+   describe various database meta data:
+
+   Generator  The name of the program that generated the KDBX file.
+
+   DatabaseName  An optional name for the KDBX database.
+
+   DatabaseNameChanged  ISO 8601 datetime [RFC3339] of the last change
+      of "DatabaseName".
+
+   DatabaseDescription  An optional description of the KDBX database.
+
+   DatabaseDescriptionChanged  ISO 8601 datetime [RFC3339] of the last
+      change of "DatabaseDescription".
+
+   DefaultUserName  The username to use as a default when creating a new
+      entry in the database.
+
+   DefaultUserNameChanged  ISO 8601 datetime [RFC3339] of the last
+      change of "DefaultUserName".
+
+   MaintenanceHistoryDays  The age of the oldest history item to keep in
+      days.
+
+   All of the above-described child elements of "Meta" MAY also be
+   empty.
+
+3.2.  Database Groups
+
+3.3.  Database Entries
+
+4.  Security Considerations
 
    KDBX is an encrypted container format.  The security of the XML
    payload described in the document depends on the strength of the
@@ -78,12 +163,27 @@ Bevendorff               Expires August 23, 2018                [Page 1]
    arbitrarily large amount of memory on the user's system during
    parsing.
 
-4.  Normative References
+
+
+Bevendorff               Expires August 23, 2018                [Page 3]
+
+                              KeePass2 XML                 February 2018
+
+
+5.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
               editor.org/info/rfc2119>.
+
+   [RFC3339]  Klyne, G. and C. Newman, "Date and Time on the Internet:
+              Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
+              <https://www.rfc-editor.org/info/rfc3339>.
+
+   [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
+              10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
+              2003, <https://www.rfc-editor.org/info/rfc3629>.
 
    [XML]      Bray, T., Paoli, J., Sperberg-McQueen, C., Eve, E., and F.
               Yergeau, "Extensible Markup Language (XML) 1.0 (Fifth
@@ -109,4 +209,16 @@ Author's Address
 
 
 
-Bevendorff               Expires August 23, 2018                [Page 2]
+
+
+
+
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 4]

@@ -81,6 +81,83 @@ from the outer KDBX container. A note is given where this is the case.
 and 'OPTIONAL' in capital letters are used to indicate requirements
  for the format specification. Their meaning is described in <xref target="RFC2119"/>.
 </t>
+<t>If not explicitly referring to <spanx style="emph">this</spanx> RFC document, the term 'Document'
+ refers to the XML payload document of the KDBX container.
+</t>
+<t>Furthermore, the term 'Database' is used to refer to the full KDBX file
+ and its contained data structures.
+</t>
+</section>
+
+<section anchor="general-structure" title="General Structure">
+<t>A KeePass XML document SHOULD start with an XML declaration.  The encoding of
+ the XML document MUST be UTF-8 <xref target="RFC3629"/>.
+</t>
+<t>The XML document MUST have a root element named <spanx style="verb">KeePassFile</spanx>.  The
+ <spanx style="verb">KeePassFile</spanx> root element MUST have exactly two child nodes <spanx style="verb">Meta</spanx>
+ and <spanx style="verb">Root</spanx>:
+</t>
+
+<figure align="center"><artwork align="center">
+&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
+&lt;KeePassFile&gt;
+    &lt;Meta&gt;
+        &lt;!-- Database meta data --&gt;
+    &lt;/Meta&gt;
+    &lt;Root&gt;
+        &lt;!-- Database group and entry tree --&gt;
+    &lt;/Root&gt;
+&lt;/KeePassFile&gt;
+</artwork></figure>
+<t><spanx style="verb">Meta</spanx> is the parent element for general database meta data, while <spanx style="verb">Root</spanx>
+contains the actual database structure.
+</t>
+<t>The database structure under <spanx style="verb">Root</spanx> is a tree of <spanx style="emph">groups</spanx>.
+</t>
+<t>A <spanx style="emph">group</spanx> is an element with various attributes defined in <xref target="database-groups"/>,
+containing zero or more <spanx style="emph">entries</spanx>.  A group can also contain zero or
+more sub groups, which can again contain entries.
+</t>
+<t>An <spanx style="emph">entry</spanx> is a set of user credentials with key-value attributes defined in
+ <xref target="database-entries"/>.
+</t>
+<t>The database MUST have exactly one <spanx style="emph">root group</spanx> which is a direct ancestor
+of the <spanx style="verb">Root</spanx> element containing all other groups and entries.
+</t>
+
+<section anchor="database-meta-data" title="Database Meta Data">
+<t>The <spanx style="verb">Meta</spanx> element MAY contain any of the following elements to describe
+various database meta data:
+</t>
+<t>
+<list style="hanging">
+<t hangText="Generator">
+The name of the program that generated the KDBX file.</t>
+<t hangText="DatabaseName">
+An optional name for the KDBX database.</t>
+<t hangText="DatabaseNameChanged">
+ISO 8601 datetime <xref target="RFC3339"/> of the last change of <spanx style="verb">DatabaseName</spanx>.</t>
+<t hangText="DatabaseDescription">
+An optional description of the KDBX database.</t>
+<t hangText="DatabaseDescriptionChanged">
+ISO 8601 datetime <xref target="RFC3339"/> of the last change of <spanx style="verb">DatabaseDescription</spanx>.</t>
+<t hangText="DefaultUserName">
+The username to use as a default when creating a new entry in the database.</t>
+<t hangText="DefaultUserNameChanged">
+ISO 8601 datetime <xref target="RFC3339"/> of the last change of <spanx style="verb">DefaultUserName</spanx>.</t>
+<t hangText="MaintenanceHistoryDays">
+The age of the oldest history item to keep in days.</t>
+</list>
+</t>
+<t>All of the above-described child elements of <spanx style="verb">Meta</spanx> MAY also be empty.
+</t>
+</section>
+
+<section anchor="database-groups" title="Database Groups">
+</section>
+
+<section anchor="database-entries" title="Database Entries">
+</section>
 </section>
 
 <section anchor="security-considerations" title="Security Considerations">
@@ -98,6 +175,8 @@ arbitrarily large amount of memory on the user's system during parsing.
 <back>
 <references title="Normative References">
 <?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?>
+<?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3339.xml"?>
+<?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3629.xml"?>
 <reference anchor="XML" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
     <front>
         <title>Extensible Markup Language (XML) 1.0 (Fifth Edition)</title>
