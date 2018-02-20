@@ -24,6 +24,11 @@ Status of This Memo
    published for informational purposes with the goal to support
    development of KDBX-based password management applications.
 
+   The information contained in this document is a work-in-progress
+   reverse engineering effort of the KDBX file format and likely to be
+   incomplete or even incorrect at this point in time.  This memo is not
+   recommended for use as reference guide yet.
+
 Copyright Notice
 
    Copyright (C) 2018 KeePassXC Team
@@ -46,17 +51,16 @@ Table of Contents
    and 4.0) files.  The payload is encoded as XML ("Extensible Markup
    Language" [XML]).
 
-   KDBX file format versions 3.1 and 4.0 use the same XML structure with
-   minor differences in the tags supported.  A note is added where KDBX
-   3.1 and 4.0 differ.
-
-
 
 
 Bevendorff               Expires August 23, 2018                [Page 1]
 
                               KeePass2 XML                 February 2018
 
+
+   KDBX file format versions 3.1 and 4.0 use the same XML structure with
+   minor differences in the tags supported.  A note is added where KDBX
+   3.1 and 4.0 differ.
 
    The XML payload itself is mostly self-contained, but may reference
    data from the outer KDBX container.  A note is given where this is
@@ -102,10 +106,6 @@ Bevendorff               Expires August 23, 2018                [Page 1]
 
    A _group_ is an element with various attributes defined in
    Section 3.2, containing zero or more _entries_.  A group can also
-   contain zero or more sub groups, which can again contain groups and
-   entries.
-
-
 
 
 
@@ -113,6 +113,9 @@ Bevendorff               Expires August 23, 2018                [Page 2]
 
                               KeePass2 XML                 February 2018
 
+
+   contain zero or more sub groups, which can again contain groups and
+   entries.
 
    An _entry_ is a set of user credentials with key-value attributes
    defined in Section 3.3.
@@ -158,9 +161,6 @@ Bevendorff               Expires August 23, 2018                [Page 2]
 
    KDBX is an encrypted container format.  The security of the XML
    payload described in this document depends on the strength of the
-   cipher and passphrase / key file used for encrypting the
-   encapsulating KDBX container.
-
 
 
 
@@ -169,6 +169,9 @@ Bevendorff               Expires August 23, 2018                [Page 3]
 
                               KeePass2 XML                 February 2018
 
+
+   cipher and passphrase / key file used for encrypting the
+   encapsulating KDBX container.
 
    In addition, all security considerations for [XML] apply as well,
    including the use of recursive XML entities, which can consume an
@@ -199,9 +202,6 @@ Author's Address
 
    Janek Bevendorff
    KeePassXC Team
-
-
-
 
 
 

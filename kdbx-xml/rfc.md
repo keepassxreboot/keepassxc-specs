@@ -36,6 +36,11 @@ This document is not an Internet Standards Track specification; it is
 published for informational purposes with the goal to support development
 of KDBX-based password management applications.
 
+The information contained in this document is a work-in-progress reverse
+engineering effort of the KDBX file format and likely to be incomplete or
+even incorrect at this point in time. This memo is not recommended for
+use as reference guide yet.
+
 .# Copyright Notice
 
 Copyright (C) 2018 KeePassXC Team
