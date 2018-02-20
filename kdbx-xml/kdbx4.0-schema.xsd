@@ -21,7 +21,7 @@
         </xs:complexType>
 
         <xs:unique name="UniqueUUID">
-            <xs:selector xpath=".//UUID" />
+            <xs:selector xpath=".//UUID"/>
             <xs:field xpath="." />
         </xs:unique>
 
@@ -155,18 +155,10 @@
             <xs:element name="DefaultUserName" type="xs:string" minOccurs="0"/>
             <xs:element name="DefaultUserNameChanged" type="xs:dateTime" minOccurs="0"/>
             <xs:element name="MaintenanceHistoryDays" type="xs:nonNegativeInteger" minOccurs="0"/>
+            <xs:element name="Color" type="HexColorType" minOccurs="0"/>
             <xs:element name="MasterKeyChanged" type="xs:dateTime" minOccurs="0"/>
             <xs:element name="MasterKeyChangeRec" type="xs:integer" minOccurs="0"/>
             <xs:element name="MasterKeyChangeForce" type="xs:integer" minOccurs="0"/>
-            <xs:element name="RecycleBinEnabled" type="BooleanType" minOccurs="0"/>
-            <xs:element name="RecycleBinUUID" type="xs:base64Binary" minOccurs="0"/>
-            <xs:element name="RecycleBinChanged" type="xs:dateTime" minOccurs="0"/>
-            <xs:element name="EntryTemplatesGroup" type="xs:base64Binary" minOccurs="0"/>
-            <xs:element name="EntryTemplatesGroupChanged" type="xs:dateTime" minOccurs="0"/>
-            <xs:element name="HistoryMaxItems" type="xs:integer" minOccurs="0"/>
-            <xs:element name="HistoryMaxSize" type="xs:integer" minOccurs="0"/>
-            <xs:element name="LastSelectedGroup" type="xs:base64Binary" minOccurs="0"/>
-            <xs:element name="LastTopVisibleGroup" type="xs:base64Binary" minOccurs="0"/>
             <xs:element name="MemoryProtection" minOccurs="0">
                 <xs:complexType>
                     <xs:all>
@@ -192,8 +184,15 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="Color" type="HexColorType" minOccurs="0"/>
-            <xs:element name="CustomData" type="CustomDataType" minOccurs="0"/>
+            <xs:element name="RecycleBinEnabled" type="BooleanType" minOccurs="0"/>
+            <xs:element name="RecycleBinUUID" type="xs:base64Binary" minOccurs="0"/>
+            <xs:element name="RecycleBinChanged" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="EntryTemplatesGroup" type="xs:base64Binary" minOccurs="0"/>
+            <xs:element name="EntryTemplatesGroupChanged" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="HistoryMaxItems" type="xs:integer" minOccurs="0"/>
+            <xs:element name="HistoryMaxSize" type="xs:integer" minOccurs="0"/>
+            <xs:element name="LastSelectedGroup" type="xs:base64Binary" minOccurs="0"/>
+            <xs:element name="LastTopVisibleGroup" type="xs:base64Binary" minOccurs="0"/>
             <xs:element name="Binaries" minOccurs="0">
                 <xs:complexType>
                     <xs:sequence>
@@ -215,6 +214,7 @@
                     <xs:field xpath="@ID" />
                 </xs:unique>
             </xs:element>
+            <xs:element name="CustomData" type="CustomDataType" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
