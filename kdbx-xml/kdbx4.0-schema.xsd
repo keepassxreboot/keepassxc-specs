@@ -116,11 +116,6 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="ProtectableBinaryRef">
-        <xs:attributeGroup ref="ProtectionAttributes"/>
-        <xs:attribute name="Ref" type="xs:integer" use="required"/>
-    </xs:complexType>
-
     <xs:complexType name="ProtectableBinaryKeyValueType">
         <xs:sequence>
             <xs:element name="Key" type="xs:string"/>
