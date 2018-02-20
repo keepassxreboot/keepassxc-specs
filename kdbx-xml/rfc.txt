@@ -64,7 +64,7 @@ Bevendorff               Expires August 23, 2018                [Page 1]
 
 2.  Conventions
 
-   In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
+   In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED',
    'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
    and 'OPTIONAL' in capital letters are used to indicate requirements
    for the format specification.  Their meaning is described in
@@ -102,10 +102,10 @@ Bevendorff               Expires August 23, 2018                [Page 1]
 
    A _group_ is an element with various attributes defined in
    Section 3.2, containing zero or more _entries_.  A group can also
-   contain zero or more sub groups, which can again contain entries.
+   contain zero or more sub groups, which can again contain groups and
+   entries.
 
-   An _entry_ is a set of user credentials with key-value attributes
-   defined in Section 3.3.
+
 
 
 
@@ -113,6 +113,9 @@ Bevendorff               Expires August 23, 2018                [Page 2]
 
                               KeePass2 XML                 February 2018
 
+
+   An _entry_ is a set of user credentials with key-value attributes
+   defined in Section 3.3.
 
    The database MUST have exactly one _root group_ which is a direct
    ancestor of the "Root" element containing all other groups and
@@ -154,14 +157,11 @@ Bevendorff               Expires August 23, 2018                [Page 2]
 4.  Security Considerations
 
    KDBX is an encrypted container format.  The security of the XML
-   payload described in the document depends on the strength of the
+   payload described in this document depends on the strength of the
    cipher and passphrase / key file used for encrypting the
    encapsulating KDBX container.
 
-   In addition, all security considerations for [XML] apply as well,
-   including the use of recursive XML entities, which can consume an
-   arbitrarily large amount of memory on the user's system during
-   parsing.
+
 
 
 
@@ -169,6 +169,11 @@ Bevendorff               Expires August 23, 2018                [Page 3]
 
                               KeePass2 XML                 February 2018
 
+
+   In addition, all security considerations for [XML] apply as well,
+   including the use of recursive XML entities, which can consume an
+   arbitrarily large amount of memory on the user's system during
+   parsing.
 
 5.  Normative References
 
@@ -194,11 +199,6 @@ Author's Address
 
    Janek Bevendorff
    KeePassXC Team
-
-
-
-
-
 
 
 

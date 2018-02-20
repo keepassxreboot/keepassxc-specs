@@ -5,7 +5,7 @@
     category = "info"
     docname = "keepass2-xml-rfc"
     ipr= "trust200902"
-    area = "Internet"
+    area = "Security"
     keyword = ["keepass", "keepassxc"]
 
     date = 2018-02-19T00:00:00Z
@@ -57,7 +57,7 @@ from the outer KDBX container. A note is given where this is the case.
 
 # Conventions
 
-In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
+In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED',
 'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
 and 'OPTIONAL' in capital letters are used to indicate requirements
  for the format specification. Their meaning is described in [@!RFC2119].
@@ -96,7 +96,7 @@ The database structure under `Root` is a tree of *groups*.
 
 A *group* is an element with various attributes defined in (#database-groups),
 containing zero or more *entries*.  A group can also contain zero or
-more sub groups, which can again contain entries.  
+more sub groups, which can again contain groups and entries.  
 
 An *entry* is a set of user credentials with key-value attributes defined in
  (#database-entries).
@@ -142,7 +142,7 @@ All of the above-described child elements of `Meta` MAY also be empty.
 # Security Considerations
 
 KDBX is an encrypted container format.  The security of the XML payload
-described in the document depends on the strength of the cipher and
+described in this document depends on the strength of the cipher and
 passphrase / key file used for encrypting the encapsulating KDBX container.
 
 In addition, all security considerations for [@!XML] apply as well,

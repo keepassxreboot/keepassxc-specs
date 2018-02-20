@@ -29,7 +29,7 @@
 </author>
 <date year="2018" month="February" day="19"/>
 
-<area>Internet</area>
+<area>Security</area>
 <workgroup></workgroup>
 <keyword>keepass</keyword>
 <keyword>keepassxc</keyword>
@@ -76,7 +76,7 @@ from the outer KDBX container. A note is given where this is the case.
 </section>
 
 <section anchor="conventions" title="Conventions">
-<t>In this document the keywords 'MUST', 'MUST NOT', 'REQUIRED',
+<t>In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED',
 'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
 and 'OPTIONAL' in capital letters are used to indicate requirements
  for the format specification. Their meaning is described in <xref target="RFC2119"/>.
@@ -116,7 +116,7 @@ contains the actual database structure.
 </t>
 <t>A <spanx style="emph">group</spanx> is an element with various attributes defined in <xref target="database-groups"/>,
 containing zero or more <spanx style="emph">entries</spanx>.  A group can also contain zero or
-more sub groups, which can again contain entries.
+more sub groups, which can again contain groups and entries.
 </t>
 <t>An <spanx style="emph">entry</spanx> is a set of user credentials with key-value attributes defined in
  <xref target="database-entries"/>.
@@ -162,7 +162,7 @@ The age of the oldest history item to keep in days.</t>
 
 <section anchor="security-considerations" title="Security Considerations">
 <t>KDBX is an encrypted container format.  The security of the XML payload
-described in the document depends on the strength of the cipher and
+described in this document depends on the strength of the cipher and
 passphrase / key file used for encrypting the encapsulating KDBX container.
 </t>
 <t>In addition, all security considerations for <xref target="XML"/> apply as well,
