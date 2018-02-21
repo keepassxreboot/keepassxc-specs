@@ -154,6 +154,7 @@
             <xs:element name="MasterKeyChanged" type="xs:dateTime" minOccurs="0"/>
             <xs:element name="MasterKeyChangeRec" type="xs:integer" minOccurs="0"/>
             <xs:element name="MasterKeyChangeForce" type="xs:integer" minOccurs="0"/>
+            <xs:element name="MasterKeyChangeForceOnce" type="BooleanType" minOccurs="0"/>
             <xs:element name="MemoryProtection" minOccurs="0">
                 <xs:complexType>
                     <xs:all>

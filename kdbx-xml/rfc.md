@@ -33,7 +33,7 @@ the KDBX container format itself.
 .# Status of This Memo
 
 This document is not an Internet Standards Track specification; it is
-published for informational purposes with the goal to support development
+published for informative purposes with the goal to support development
 of KDBX-based password management applications.
 
 The information contained in this document is a work-in-progress reverse
@@ -73,14 +73,31 @@ and 'OPTIONAL' in capital letters are used to indicate requirements
  Furthermore, the term 'Database' is used to refer to the full KDBX file
  and its contained data structures.
 
-# General Structure
+# XML Format Description
+
+## XML Schema
+
+A full XML 1.0 schema [@!XMLSchema] is provided in:
+[kdbx4.0-schema.xsd](kdbx4.0-schema.xsd)
+
+The schema file is only intended for informative purposes.  In practice,
+parsers SHALL NOT use this schema for strict validation.  Most importantly,
+parsers SHALL NOT make assumptions about the order of elements.  `<xs:sequence>`
+elements are exclusively used for Schema 1.0 compatibility, while in
+reality, no particular element order is guaranteed.
+
+Given the sensitive nature of the data contained in a password file,
+a parser SHOULD be reasonably forgiving while trying to read a successfully
+decrypted KDBX database.
+
+## Semantics
 
 A KeePass XML document SHOULD start with an XML declaration.  The encoding of
  the XML document MUST be UTF-8 [@!RFC3629].
  
- The XML document MUST have a root element named `KeePassFile`.  The
- `KeePassFile` root element MUST have exactly two child nodes `Meta`
- and `Root`:
+ The XML document MUST have a root element named `<KeePassFile>`.  The
+ `<KeePassFile>` root element MUST have exactly two child nodes `<Meta>`
+ and `<Root>`:
 
 ~~~
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -94,55 +111,171 @@ A KeePass XML document SHOULD start with an XML declaration.  The encoding of
 </KeePassFile>
 ~~~
 
-`Meta` is the parent element for general database meta data, while `Root`
+`<Meta>` is the parent element for global database meta data, while `<Root>`
 contains the actual database structure.
 
-The database structure under `Root` is a tree of *groups*.
+### Basic Data Types
 
-A *group* is an element with various attributes defined in (#database-groups),
+All fields stored in a KeePass XML file are UTF-8 string values.  For most fields,
+these string values can be arbitrary, but some fields require special data types,
+which impose extra restrictions on the allowed data format.
+
+The following special data types exist:
+
+- An *INTEGER* is a numeric decimal string consisting of one or more
+characters in the range 0 to 9.  *INTEGERs* can be signed by adding a hyphen
+character `-` in front.
+
+- A *BOOLEAN* is represented by the strings `True` and `False`.  The
+alternative forms `true` and `false` as well as `1` and `0` are also possible.
+
+- A *DATETIME* is an XML datetime in ISO 8601 format [@!RFC3339].
+
+- A *COLOR* is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or
+a-f), preceded by a \# character (e.g., \#FF00FF for yellow)
+
+- A *BLOB* is a Base64-encoded [@!RFC4648] string representation of
+arbitrary binary data.
+
+- A *STRING MAP* is a complex XML type with exactly two child elements
+`<Key>` and `<Value>` describing a mapping between a key string and a
+value string.
+
+### Identifiers
+
+Unique resources inside the database are identified by a *UUID*, which is a globally
+unique 128-bit (16-byte) identifier. *UUIDs* are encoded as *BLOBs*.
+
+### Meta Data
+
+The `<Meta>` element MAY contain any of the following elements at most once
+to describe various database meta data.
+
+`<Generator>`
+:   The name of the program that generated the KDBX file.
+
+`<DatabaseName>`
+:   An optional name for the KDBX database.
+
+`<DatabaseNameChanged>`
+:   *DATETIME* of the last change of `<DatabaseName>`.
+
+`<DatabaseDescription>`
+:   An optional description of the KDBX database.
+
+`<DatabaseDescriptionChanged>`
+:   *DATETIME* of the last change of `<DatabaseDescription>`.
+
+`<DefaultUserName>`
+:   The username to use as a default when creating a new entry in the database.
+
+`<DefaultUserNameChanged>`
+:   *DATETIME* of the last change of `<DefaultUserName>`.
+
+`<MaintenanceHistoryDays>`
+:   *INTEGER* indicating the maximum age of the oldest history item
+to keep in days.
+
+`<Color>`
+:   A *COLOR* that can be used for coloring the program icon or database tab
+inside the password manager application.
+
+`<MasterKeyChanged>`
+:   *DATETIME* of the last change of the database's master key.
+
+`<MasterKeyChangeRec>`
+:   *INTEGER* indicating the number of days after which the password manager
+SHOULD recommend changing the database's master key (-1 means 'never')
+
+`<MasterKeyChangeRec>`
+:   *INTEGER* indicating the number of days after which the password manager
+SHOULD force changing the database's master key (-1 means 'never')
+
+`<MasterKeyChangeForceOnce>`
+:   *BOOLEAN* indicating that the password manager SHOULD force changing the
+database's master key next time the database is opened.  This element SHOULD
+be removed or set to 'False' once the master key has been changed.
+
+`<MemoryProtection>`
+:   A complex XML type for configuring which fields SHOULD be protected by
+in-memory encryption at runtime.  The element MAY have the *BOOLEAN* child
+elements `<ProtectTitle>`, `<ProtectUserName>`, `<ProtectPassword>`,
+`<ProtectURL>`, and `<ProtectNotes>` for protection of the title, username,
+password, URL and notes fields.
+
+`<CustomIcons>`
+:   A complex XML type containing a sequence of zero or more custom icons, which
+can be used for visually customizing groups and entries (described in (#groups)
+and (#entries)).  An icon is an `<Icon>` element, which has exactly two children
+`<UUID>` (a *UUID*) and `<Data>`.  `<Data>` contains the icon image data as *BLOB*.
+
+`<RecycleBinEnabled>`
+:   *BOOLEAN* indicating whether the database has an enable recycle bin.
+
+`<RecycleBinUUID>`
+:   The *UUID* of the recycle bin group inside the database (groups are
+described in (#data)).
+
+`<RecycleBinChanged>`
+:   *DATETIME* of the last change to the recycle bin.
+
+`<EntryTemplatesGroup>`
+:   The *UUID* of the group that contains templates for the creation of
+new entries (entries are also introduced in (#data)).
+
+`<EntryTemplatesGroupChanged>`
+:   *DATETIME* of the last change to the templates group.
+
+`<HistoryMaxItems>`
+:   An *INTEGER* indicating the maximum number of items the history of
+an element may have (history items are described in (#entry-history)).
+When the number of items in an entry's history exceeds this number, the
+password manager SHOULD delete the oldest history items until the number
+ of history items no longer exceeds this value.
+
+`<HistoryMaxSize>`
+:   An *INTEGER* indicating the maximum history size in bytes. If an entry's
+history exceeds this size, the password manager SHOULD delete the oldest
+history items, until the total history size no longer exceeds this value.
+
+`<LastSelectedGroup>`
+:   *UUID* of the group that was last selected by the user.
+
+`<LastTopVisibleGroup>`
+:   *UUID* of the last 'top' item. This seems to always be the root group
+of the database.
+
+`<Binaries>`
+:   A sequence of zero or more `<Binary>` elements containing files attached
+to entries in the database.  Each `<Binary>` element is a *BLOB* containing
+the file's contents. `<Binary>` elements MUST have an `ID` attribute, which
+is a unique *INTEGER* identifying the *BLOB* data and a *BOOLEAN* attribute
+`Compressed`, indicating whether the *BLOB* data is Gzip-compressed [@RFC1952].
+A database SHOULD NOT contain two `<Binary>` elements with the same *BLOB* data.
+
+`<CustomData>`
+:   A sequence of zero or more *STRING MAP* `<Item>` elements. `<Item>`
+elements can be used by plugins to store arbitrary string data at database level.
+
+### Data
+
+The database structure under `<Root>` is a tree of *groups*.
+
+A *group* is an element with various attributes defined in (#groups),
 containing zero or more *entries*.  A group can also contain zero or
 more sub groups, which can again contain groups and entries.  
 
 An *entry* is a set of user credentials with key-value attributes defined in
- (#database-entries).
+ (#entries).
 
 The database MUST have exactly one *root group* which is a direct ancestor
-of the `Root` element containing all other groups and entries.
+of the `<Root>` element containing all other groups and entries.
 
-## Database Meta Data
+#### Groups
 
-The `Meta` element MAY contain any of the following elements to describe
-various database meta data:
+#### Entries
 
-`Generator`
-:   The name of the program that generated the KDBX file.
-
-`DatabaseName`
-:   An optional name for the KDBX database.
-
-`DatabaseNameChanged`
-:   ISO 8601 datetime [@!RFC3339] of the last change of `DatabaseName`.
-
-`DatabaseDescription`
-:   An optional description of the KDBX database.
-
-`DatabaseDescriptionChanged`
-:   ISO 8601 datetime [@!RFC3339] of the last change of `DatabaseDescription`.
-
-`DefaultUserName`
-:   The username to use as a default when creating a new entry in the database.
-
-`DefaultUserNameChanged`
-:   ISO 8601 datetime [@!RFC3339] of the last change of `DefaultUserName`.
-
-`MaintenanceHistoryDays`
-:   The age of the oldest history item to keep in days.
-
-All of the above-described child elements of `Meta` MAY also be empty.
-
-## Database Groups
-
-## Database Entries
+##### Entry History
 
 # Security Considerations
 
@@ -184,6 +317,37 @@ arbitrarily large amount of memory on the user's system during parsing.
         </author>
         <author initials="F." surname="Yergeau" fullname="François Yergeau"/>
         <date day="26" month="November" year="2008"/>
+    </front>
+</reference>
+
+<reference anchor="XMLSchema" target="https://www.w3.org/TR/xmlschema-1/">
+    <front>
+        <title>XML Schema Part 1: Structures Second Edition</title>
+        <author initials="H. S." surname="Thompson" fullname="Henry S. Thompson">
+            <organization>University of Edinburgh</organization>
+            <address>
+                <email>ht@cogsci.ed.ac.uk</email>
+            </address>
+        </author>
+        <author initials="D." surname="Beech" fullname="David Beech">
+            <organization>Oracle Corporation</organization>
+            <address>
+                <email>David.Beech@oracle.com</email>
+            </address>
+        </author>
+        <author initials="M." surname="Maloney" fullname="Murray Maloney">
+            <organization>Commerce One</organization>
+            <address>
+                <email>murray@muzmo.com</email>
+            </address>
+        </author>
+        <author initials="N." surname="Mendelsohn" fullname="Noah Mendelsohn">
+            <organization>Lotus Development Corporation</organization>
+            <address>
+                <email>Noah_Mendelsohn@lotus.com</email>
+            </address>
+        </author>
+        <date day="28" month="October" year="2004"/>
     </front>
 </reference>
 

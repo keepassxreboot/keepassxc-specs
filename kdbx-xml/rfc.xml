@@ -47,7 +47,7 @@ the KDBX container format itself.
 
 <note title="Status of This Memo">
 <t>This document is not an Internet Standards Track specification; it is
-published for informational purposes with the goal to support development
+published for informative purposes with the goal to support development
 of KDBX-based password management applications.
 </t>
 <t>The information contained in this document is a work-in-progress reverse
@@ -94,13 +94,31 @@ and 'OPTIONAL' in capital letters are used to indicate requirements
 </t>
 </section>
 
-<section anchor="general-structure" title="General Structure">
+<section anchor="xml-format-description" title="XML Format Description">
+
+<section anchor="xml-schema" title="XML Schema">
+<t>A full XML 1.0 schema <xref target="XMLSchema"/> is provided in:
+<eref target="kdbx4.0-schema.xsd">kdbx4.0-schema.xsd</eref>
+</t>
+<t>The schema file is only intended for informative purposes.  In practice,
+parsers SHALL NOT use this schema for strict validation.  Most importantly,
+parsers SHALL NOT make assumptions about the order of elements.  <spanx style="verb">&lt;xs:sequence&gt;</spanx>
+elements are exclusively used for Schema 1.0 compatibility, while in
+reality, no particular element order is guaranteed.
+</t>
+<t>Given the sensitive nature of the data contained in a password file,
+a parser SHOULD be reasonably forgiving while trying to read a successfully
+decrypted KDBX database.
+</t>
+</section>
+
+<section anchor="semantics" title="Semantics">
 <t>A KeePass XML document SHOULD start with an XML declaration.  The encoding of
  the XML document MUST be UTF-8 <xref target="RFC3629"/>.
 </t>
-<t>The XML document MUST have a root element named <spanx style="verb">KeePassFile</spanx>.  The
- <spanx style="verb">KeePassFile</spanx> root element MUST have exactly two child nodes <spanx style="verb">Meta</spanx>
- and <spanx style="verb">Root</spanx>:
+<t>The XML document MUST have a root element named <spanx style="verb">&lt;KeePassFile&gt;</spanx>.  The
+ <spanx style="verb">&lt;KeePassFile&gt;</spanx> root element MUST have exactly two child nodes <spanx style="verb">&lt;Meta&gt;</spanx>
+ and <spanx style="verb">&lt;Root&gt;</spanx>:
 </t>
 
 <figure align="center"><artwork align="center">
@@ -114,54 +132,155 @@ and 'OPTIONAL' in capital letters are used to indicate requirements
     &lt;/Root&gt;
 &lt;/KeePassFile&gt;
 </artwork></figure>
-<t><spanx style="verb">Meta</spanx> is the parent element for general database meta data, while <spanx style="verb">Root</spanx>
+<t><spanx style="verb">&lt;Meta&gt;</spanx> is the parent element for global database meta data, while <spanx style="verb">&lt;Root&gt;</spanx>
 contains the actual database structure.
 </t>
-<t>The database structure under <spanx style="verb">Root</spanx> is a tree of <spanx style="emph">groups</spanx>.
+
+<section anchor="basic-data-types" title="Basic Data Types">
+<t>All fields stored in a KeePass XML file are UTF-8 string values.  For most fields,
+these string values can be arbitrary, but some fields require special data types,
+which impose extra restrictions on the allowed data format.
 </t>
-<t>A <spanx style="emph">group</spanx> is an element with various attributes defined in <xref target="database-groups"/>,
+<t>The following special data types exist:
+</t>
+<t>
+<list style="symbols">
+<t>An <spanx style="emph">INTEGER</spanx> is a numeric decimal string consisting of one or more
+characters in the range 0 to 9.  <spanx style="emph">INTEGERs</spanx> can be signed by adding a hyphen
+character <spanx style="verb">-</spanx> in front.</t>
+<t>A <spanx style="emph">BOOLEAN</spanx> is represented by the strings <spanx style="verb">True</spanx> and <spanx style="verb">False</spanx>.  The
+alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx> as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx> are also possible.</t>
+<t>A <spanx style="emph">DATETIME</spanx> is an XML datetime in ISO 8601 format <xref target="RFC3339"/>.</t>
+<t>A <spanx style="emph">COLOR</spanx> is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or
+a-f), preceded by a # character (e.g., #FF00FF for yellow)</t>
+<t>A <spanx style="emph">BLOB</spanx> is a Base64-encoded <xref target="RFC4648"/> string representation of
+arbitrary binary data.</t>
+<t>A <spanx style="emph">STRING MAP</spanx> is a complex XML type with exactly two child elements
+<spanx style="verb">&lt;Key&gt;</spanx> and <spanx style="verb">&lt;Value&gt;</spanx> describing a mapping between a key string and a
+value string.</t>
+</list>
+</t>
+</section>
+
+<section anchor="identifiers" title="Identifiers">
+<t>Unique resources inside the database are identified by a <spanx style="emph">UUID</spanx>, which is a globally
+unique 128-bit (16-byte) identifier. <spanx style="emph">UUIDs</spanx> are encoded as <spanx style="emph">BLOBs</spanx>.
+</t>
+</section>
+
+<section anchor="meta-data" title="Meta Data">
+<t>The <spanx style="verb">&lt;Meta&gt;</spanx> element MAY contain any of the following elements at most once
+to describe various database meta data.
+</t>
+<t>
+<list style="hanging">
+<t hangText="&lt;Generator&gt;">
+The name of the program that generated the KDBX file.</t>
+<t hangText="&lt;DatabaseName&gt;">
+An optional name for the KDBX database.</t>
+<t hangText="&lt;DatabaseNameChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DatabaseName&gt;</spanx>.</t>
+<t hangText="&lt;DatabaseDescription&gt;">
+An optional description of the KDBX database.</t>
+<t hangText="&lt;DatabaseDescriptionChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DatabaseDescription&gt;</spanx>.</t>
+<t hangText="&lt;DefaultUserName&gt;">
+The username to use as a default when creating a new entry in the database.</t>
+<t hangText="&lt;DefaultUserNameChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DefaultUserName&gt;</spanx>.</t>
+<t hangText="&lt;MaintenanceHistoryDays&gt;">
+<spanx style="emph">INTEGER</spanx> indicating the maximum age of the oldest history item
+to keep in days.</t>
+<t hangText="&lt;Color&gt;">
+A <spanx style="emph">COLOR</spanx> that can be used for coloring the program icon or database tab
+inside the password manager application.</t>
+<t hangText="&lt;MasterKeyChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change of the database's master key.</t>
+<t hangText="&lt;MasterKeyChangeRec&gt;">
+<spanx style="emph">INTEGER</spanx> indicating the number of days after which the password manager
+SHOULD recommend changing the database's master key (-1 means 'never')</t>
+<t hangText="&lt;MasterKeyChangeRec&gt;">
+<spanx style="emph">INTEGER</spanx> indicating the number of days after which the password manager
+SHOULD force changing the database's master key (-1 means 'never')</t>
+<t hangText="&lt;MasterKeyChangeForceOnce&gt;">
+<spanx style="emph">BOOLEAN</spanx> indicating that the password manager SHOULD force changing the
+database's master key next time the database is opened.  This element SHOULD
+be removed or set to 'False' once the master key has been changed.</t>
+<t hangText="&lt;MemoryProtection&gt;">
+A complex XML type for configuring which fields SHOULD be protected by
+in-memory encryption at runtime.  The element MAY have the <spanx style="emph">BOOLEAN</spanx> child
+elements <spanx style="verb">&lt;ProtectTitle&gt;</spanx>, <spanx style="verb">&lt;ProtectUserName&gt;</spanx>, <spanx style="verb">&lt;ProtectPassword&gt;</spanx>,
+<spanx style="verb">&lt;ProtectURL&gt;</spanx>, and <spanx style="verb">&lt;ProtectNotes&gt;</spanx> for protection of the title, username,
+password, URL and notes fields.</t>
+<t hangText="&lt;CustomIcons&gt;">
+A complex XML type containing a sequence of zero or more custom icons, which
+can be used for visually customizing groups and entries (described in <xref target="groups"/>
+and <xref target="entries"/>).  An icon is an <spanx style="verb">&lt;Icon&gt;</spanx> element, which has exactly two children
+<spanx style="verb">&lt;UUID&gt;</spanx> (a <spanx style="emph">UUID</spanx>) and <spanx style="verb">&lt;Data&gt;</spanx>.  <spanx style="verb">&lt;Data&gt;</spanx> contains the icon image data as <spanx style="emph">BLOB</spanx>.</t>
+<t hangText="&lt;RecycleBinEnabled&gt;">
+<spanx style="emph">BOOLEAN</spanx> indicating whether the database has an enable recycle bin.</t>
+<t hangText="&lt;RecycleBinUUID&gt;">
+The <spanx style="emph">UUID</spanx> of the recycle bin group inside the database (groups are
+described in <xref target="data"/>).</t>
+<t hangText="&lt;RecycleBinChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change to the recycle bin.</t>
+<t hangText="&lt;EntryTemplatesGroup&gt;">
+The <spanx style="emph">UUID</spanx> of the group that contains templates for the creation of
+new entries (entries are also introduced in <xref target="data"/>).</t>
+<t hangText="&lt;EntryTemplatesGroupChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change to the templates group.</t>
+<t hangText="&lt;HistoryMaxItems&gt;">
+An <spanx style="emph">INTEGER</spanx> indicating the maximum number of items the history of
+an element may have (history items are described in <xref target="entry-history"/>).
+When the number of items in an entry's history exceeds this number, the
+password manager SHOULD delete the oldest history items until the number
+of history items no longer exceeds this value.</t>
+<t hangText="&lt;HistoryMaxSize&gt;">
+An <spanx style="emph">INTEGER</spanx> indicating the maximum history size in bytes. If an entry's
+history exceeds this size, the password manager SHOULD delete the oldest
+history items, until the total history size no longer exceeds this value.</t>
+<t hangText="&lt;LastSelectedGroup&gt;">
+<spanx style="emph">UUID</spanx> of the group that was last selected by the user.</t>
+<t hangText="&lt;LastTopVisibleGroup&gt;">
+<spanx style="emph">UUID</spanx> of the last 'top' item. This seems to always be the root group
+of the database.</t>
+<t hangText="&lt;Binaries&gt;">
+A sequence of zero or more <spanx style="verb">&lt;Binary&gt;</spanx> elements containing files attached
+to entries in the database.  Each <spanx style="verb">&lt;Binary&gt;</spanx> element is a <spanx style="emph">BLOB</spanx> containing
+the file's contents. <spanx style="verb">&lt;Binary&gt;</spanx> elements MUST have an <spanx style="verb">ID</spanx> attribute, which
+is a unique <spanx style="emph">INTEGER</spanx> identifying the <spanx style="emph">BLOB</spanx> data and a <spanx style="emph">BOOLEAN</spanx> attribute
+<spanx style="verb">Compressed</spanx>, indicating whether the <spanx style="emph">BLOB</spanx> data is Gzip-compressed <xref target="RFC1952"/>.
+A database SHOULD NOT contain two <spanx style="verb">&lt;Binary&gt;</spanx> elements with the same <spanx style="emph">BLOB</spanx> data.</t>
+<t hangText="&lt;CustomData&gt;">
+A sequence of zero or more <spanx style="emph">STRING MAP</spanx> <spanx style="verb">&lt;Item&gt;</spanx> elements. <spanx style="verb">&lt;Item&gt;</spanx>
+elements can be used by plugins to store arbitrary string data at database level.</t>
+</list>
+</t>
+</section>
+
+<section anchor="data" title="Data">
+<t>The database structure under <spanx style="verb">&lt;Root&gt;</spanx> is a tree of <spanx style="emph">groups</spanx>.
+</t>
+<t>A <spanx style="emph">group</spanx> is an element with various attributes defined in <xref target="groups"/>,
 containing zero or more <spanx style="emph">entries</spanx>.  A group can also contain zero or
 more sub groups, which can again contain groups and entries.
 </t>
 <t>An <spanx style="emph">entry</spanx> is a set of user credentials with key-value attributes defined in
- <xref target="database-entries"/>.
+ <xref target="entries"/>.
 </t>
 <t>The database MUST have exactly one <spanx style="emph">root group</spanx> which is a direct ancestor
-of the <spanx style="verb">Root</spanx> element containing all other groups and entries.
+of the <spanx style="verb">&lt;Root&gt;</spanx> element containing all other groups and entries.
 </t>
 
-<section anchor="database-meta-data" title="Database Meta Data">
-<t>The <spanx style="verb">Meta</spanx> element MAY contain any of the following elements to describe
-various database meta data:
-</t>
-<t>
-<list style="hanging">
-<t hangText="Generator">
-The name of the program that generated the KDBX file.</t>
-<t hangText="DatabaseName">
-An optional name for the KDBX database.</t>
-<t hangText="DatabaseNameChanged">
-ISO 8601 datetime <xref target="RFC3339"/> of the last change of <spanx style="verb">DatabaseName</spanx>.</t>
-<t hangText="DatabaseDescription">
-An optional description of the KDBX database.</t>
-<t hangText="DatabaseDescriptionChanged">
-ISO 8601 datetime <xref target="RFC3339"/> of the last change of <spanx style="verb">DatabaseDescription</spanx>.</t>
-<t hangText="DefaultUserName">
-The username to use as a default when creating a new entry in the database.</t>
-<t hangText="DefaultUserNameChanged">
-ISO 8601 datetime <xref target="RFC3339"/> of the last change of <spanx style="verb">DefaultUserName</spanx>.</t>
-<t hangText="MaintenanceHistoryDays">
-The age of the oldest history item to keep in days.</t>
-</list>
-</t>
-<t>All of the above-described child elements of <spanx style="verb">Meta</spanx> MAY also be empty.
-</t>
+<section anchor="groups" title="Groups">
 </section>
 
-<section anchor="database-groups" title="Database Groups">
-</section>
+<section anchor="entries" title="Entries">
 
-<section anchor="database-entries" title="Database Entries">
+<section anchor="entry-history" title="Entry History">
+</section>
+</section>
+</section>
 </section>
 </section>
 
@@ -182,6 +301,7 @@ arbitrarily large amount of memory on the user's system during parsing.
 <?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?>
 <?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3339.xml"?>
 <?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3629.xml"?>
+<?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4648.xml"?>
 <reference anchor="XML" target="https://www.w3.org/TR/2008/REC-xml-20081126/">
     <front>
         <title>Extensible Markup Language (XML) 1.0 (Fifth Edition)</title>
@@ -213,6 +333,39 @@ arbitrarily large amount of memory on the user's system during parsing.
         <date day="26" month="November" year="2008"/>
     </front>
 </reference>
+<reference anchor="XMLSchema" target="https://www.w3.org/TR/xmlschema-1/">
+    <front>
+        <title>XML Schema Part 1: Structures Second Edition</title>
+        <author initials="H. S." surname="Thompson" fullname="Henry S. Thompson">
+            <organization>University of Edinburgh</organization>
+            <address>
+                <email>ht@cogsci.ed.ac.uk</email>
+            </address>
+        </author>
+        <author initials="D." surname="Beech" fullname="David Beech">
+            <organization>Oracle Corporation</organization>
+            <address>
+                <email>David.Beech@oracle.com</email>
+            </address>
+        </author>
+        <author initials="M." surname="Maloney" fullname="Murray Maloney">
+            <organization>Commerce One</organization>
+            <address>
+                <email>murray@muzmo.com</email>
+            </address>
+        </author>
+        <author initials="N." surname="Mendelsohn" fullname="Noah Mendelsohn">
+            <organization>Lotus Development Corporation</organization>
+            <address>
+                <email>Noah_Mendelsohn@lotus.com</email>
+            </address>
+        </author>
+        <date day="28" month="October" year="2004"/>
+    </front>
+</reference>
+</references>
+<references title="Informative References">
+<?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1952.xml"?>
 </references>
 
 </back>

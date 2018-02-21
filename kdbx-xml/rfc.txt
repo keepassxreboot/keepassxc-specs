@@ -21,7 +21,7 @@ Abstract
 Status of This Memo
 
    This document is not an Internet Standards Track specification; it is
-   published for informational purposes with the goal to support
+   published for informative purposes with the goal to support
    development of KDBX-based password management applications.
 
    The information contained in this document is a work-in-progress
@@ -35,21 +35,21 @@ Copyright Notice
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   1
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Conventions . . . . . . . . . . . . . . . . . . . . . . . . .   2
-   3.  General Structure . . . . . . . . . . . . . . . . . . . . . .   2
-     3.1.  Database Meta Data  . . . . . . . . . . . . . . . . . . .   3
-     3.2.  Database Groups . . . . . . . . . . . . . . . . . . . . .   3
-     3.3.  Database Entries  . . . . . . . . . . . . . . . . . . . .   3
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   3
-   5.  Normative References  . . . . . . . . . . . . . . . . . . . .   4
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   4
+   3.  XML Format Description  . . . . . . . . . . . . . . . . . . .   2
+     3.1.  XML Schema  . . . . . . . . . . . . . . . . . . . . . . .   2
+     3.2.  Semantics . . . . . . . . . . . . . . . . . . . . . . . .   3
+       3.2.1.  Basic Data Types  . . . . . . . . . . . . . . . . . .   3
+       3.2.2.  Identifiers . . . . . . . . . . . . . . . . . . . . .   4
+       3.2.3.  Meta Data . . . . . . . . . . . . . . . . . . . . . .   4
+       3.2.4.  Data  . . . . . . . . . . . . . . . . . . . . . . . .   6
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   7
+     5.2.  Informative References  . . . . . . . . . . . . . . . . .   7
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
 
-1.  Introduction
-
-   This document describes the payload format used in KDBX (version 3.1
-   and 4.0) files.  The payload is encoded as XML ("Extensible Markup
-   Language" [XML]).
 
 
 
@@ -57,6 +57,12 @@ Bevendorff               Expires August 23, 2018                [Page 1]
 
                               KeePass2 XML                 February 2018
 
+
+1.  Introduction
+
+   This document describes the payload format used in KDBX (version 3.1
+   and 4.0) files.  The payload is encoded as XML ("Extensible Markup
+   Language" [XML]).
 
    KDBX file format versions 3.1 and 4.0 use the same XML structure with
    minor differences in the tags supported.  A note is added where KDBX
@@ -80,14 +86,42 @@ Bevendorff               Expires August 23, 2018                [Page 1]
    Furthermore, the term 'Database' is used to refer to the full KDBX
    file and its contained data structures.
 
-3.  General Structure
+3.  XML Format Description
+
+3.1.  XML Schema
+
+   A full XML 1.0 schema [XMLSchema] is provided in: kdbx4.0-schema.xsd
+
+   The schema file is only intended for informative purposes.  In
+   practice, parsers SHALL NOT use this schema for strict validation.
+   Most importantly, parsers SHALL NOT make assumptions about the order
+   of elements.  "<xs:sequence>" elements are exclusively used for
+   Schema 1.0 compatibility, while in reality, no particular element
+   order is guaranteed.
+
+   Given the sensitive nature of the data contained in a password file,
+   a parser SHOULD be reasonably forgiving while trying to read a
+   successfully decrypted KDBX database.
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 2]
+
+                              KeePass2 XML                 February 2018
+
+
+3.2.  Semantics
 
    A KeePass XML document SHOULD start with an XML declaration.  The
    encoding of the XML document MUST be UTF-8 [RFC3629].
 
-   The XML document MUST have a root element named "KeePassFile".  The
-   "KeePassFile" root element MUST have exactly two child nodes "Meta"
-   and "Root":
+   The XML document MUST have a root element named "<KeePassFile>".  The
+   "<KeePassFile>" root element MUST have exactly two child nodes
+   "<Meta>" and "<Root>":
 
           <?xml version="1.0" encoding="utf-8" standalone="yes"?>
           <KeePassFile>
@@ -99,68 +133,34 @@ Bevendorff               Expires August 23, 2018                [Page 1]
               </Root>
           </KeePassFile>
 
-   "Meta" is the parent element for general database meta data, while
-   "Root" contains the actual database structure.
+   "<Meta>" is the parent element for global database meta data, while
+   "<Root>" contains the actual database structure.
 
-   The database structure under "Root" is a tree of _groups_.
+3.2.1.  Basic Data Types
 
-   A _group_ is an element with various attributes defined in
-   Section 3.2, containing zero or more _entries_.  A group can also
+   All fields stored in a KeePass XML file are UTF-8 string values.  For
+   most fields, these string values can be arbitrary, but some fields
+   require special data types, which impose extra restrictions on the
+   allowed data format.
 
+   The following special data types exist:
 
+   o  An _INTEGER_ is a numeric decimal string consisting of one or more
+      characters in the range 0 to 9.  _INTEGERs_ can be signed by
+      adding a hyphen character "-" in front.
 
-Bevendorff               Expires August 23, 2018                [Page 2]
-
-                              KeePass2 XML                 February 2018
+   o  A _BOOLEAN_ is represented by the strings "True" and "False".  The
+      alternative forms "true" and "false" as well as "1" and "0" are
+      also possible.
 
+   o  A _DATETIME_ is an XML datetime in ISO 8601 format [RFC3339].
 
-   contain zero or more sub groups, which can again contain groups and
-   entries.
+   o  A _COLOR_ is a six-digit hexadecimal RGB color code (characters
+      0-9 and A-F or a-f), preceded by a # character (e.g., #FF00FF for
+      yellow)
 
-   An _entry_ is a set of user credentials with key-value attributes
-   defined in Section 3.3.
-
-   The database MUST have exactly one _root group_ which is a direct
-   ancestor of the "Root" element containing all other groups and
-   entries.
-
-3.1.  Database Meta Data
-
-   The "Meta" element MAY contain any of the following elements to
-   describe various database meta data:
-
-   Generator  The name of the program that generated the KDBX file.
-
-   DatabaseName  An optional name for the KDBX database.
-
-   DatabaseNameChanged  ISO 8601 datetime [RFC3339] of the last change
-      of "DatabaseName".
-
-   DatabaseDescription  An optional description of the KDBX database.
-
-   DatabaseDescriptionChanged  ISO 8601 datetime [RFC3339] of the last
-      change of "DatabaseDescription".
-
-   DefaultUserName  The username to use as a default when creating a new
-      entry in the database.
-
-   DefaultUserNameChanged  ISO 8601 datetime [RFC3339] of the last
-      change of "DefaultUserName".
-
-   MaintenanceHistoryDays  The age of the oldest history item to keep in
-      days.
-
-   All of the above-described child elements of "Meta" MAY also be
-   empty.
-
-3.2.  Database Groups
-
-3.3.  Database Entries
-
-4.  Security Considerations
-
-   KDBX is an encrypted container format.  The security of the XML
-   payload described in this document depends on the strength of the
+   o  A _BLOB_ is a Base64-encoded [RFC4648] string representation of
+      arbitrary binary data.
 
 
 
@@ -170,6 +170,178 @@ Bevendorff               Expires August 23, 2018                [Page 3]
                               KeePass2 XML                 February 2018
 
 
+   o  A _STRING MAP_ is a complex XML type with exactly two child
+      elements "<Key>" and "<Value>" describing a mapping between a key
+      string and a value string.
+
+3.2.2.  Identifiers
+
+   Unique resources inside the database are identified by a _UUID_,
+   which is a globally unique 128-bit (16-byte) identifier. _UUIDs_ are
+   encoded as _BLOBs_.
+
+3.2.3.  Meta Data
+
+   The "<Meta>" element MAY contain any of the following elements at
+   most once to describe various database meta data.
+
+   <Generator>  The name of the program that generated the KDBX file.
+
+   <DatabaseName>  An optional name for the KDBX database.
+
+   <DatabaseNameChanged>  _DATETIME_ of the last change of
+      "<DatabaseName>".
+
+   <DatabaseDescription>  An optional description of the KDBX database.
+
+   <DatabaseDescriptionChanged>  _DATETIME_ of the last change of
+      "<DatabaseDescription>".
+
+   <DefaultUserName>  The username to use as a default when creating a
+      new entry in the database.
+
+   <DefaultUserNameChanged>  _DATETIME_ of the last change of
+      "<DefaultUserName>".
+
+   <MaintenanceHistoryDays>  _INTEGER_ indicating the maximum age of the
+      oldest history item to keep in days.
+
+   <Color>  A _COLOR_ that can be used for coloring the program icon or
+      database tab inside the password manager application.
+
+   <MasterKeyChanged>  _DATETIME_ of the last change of the database's
+      master key.
+
+   <MasterKeyChangeRec>  _INTEGER_ indicating the number of days after
+      which the password manager SHOULD recommend changing the
+      database's master key (-1 means 'never')
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 4]
+
+                              KeePass2 XML                 February 2018
+
+
+   <MasterKeyChangeRec>  _INTEGER_ indicating the number of days after
+      which the password manager SHOULD force changing the database's
+      master key (-1 means 'never')
+
+   <MasterKeyChangeForceOnce>  _BOOLEAN_ indicating that the password
+      manager SHOULD force changing the database's master key next time
+      the database is opened.  This element SHOULD be removed or set to
+      'False' once the master key has been changed.
+
+   <MemoryProtection>  A complex XML type for configuring which fields
+      SHOULD be protected by in-memory encryption at runtime.  The
+      element MAY have the _BOOLEAN_ child elements "<ProtectTitle>",
+      "<ProtectUserName>", "<ProtectPassword>", "<ProtectURL>", and
+      "<ProtectNotes>" for protection of the title, username, password,
+      URL and notes fields.
+
+   <CustomIcons>  A complex XML type containing a sequence of zero or
+      more custom icons, which can be used for visually customizing
+      groups and entries (described in Section 3.2.4.1 and
+      Section 3.2.4.2).  An icon is an "<Icon>" element, which has
+      exactly two children "<UUID>" (a _UUID_) and "<Data>".  "<Data>"
+      contains the icon image data as _BLOB_.
+
+   <RecycleBinEnabled>  _BOOLEAN_ indicating whether the database has an
+      enable recycle bin.
+
+   <RecycleBinUUID>  The _UUID_ of the recycle bin group inside the
+      database (groups are described in Section 3.2.4).
+
+   <RecycleBinChanged>  _DATETIME_ of the last change to the recycle
+      bin.
+
+   <EntryTemplatesGroup>  The _UUID_ of the group that contains
+      templates for the creation of new entries (entries are also
+      introduced in Section 3.2.4).
+
+   <EntryTemplatesGroupChanged>  _DATETIME_ of the last change to the
+      templates group.
+
+   <HistoryMaxItems>  An _INTEGER_ indicating the maximum number of
+      items the history of an element may have (history items are
+      described in Section 3.2.4.2.1).  When the number of items in an
+      entry's history exceeds this number, the password manager SHOULD
+      delete the oldest history items until the number of history items
+      no longer exceeds this value.
+
+   <HistoryMaxSize>  An _INTEGER_ indicating the maximum history size in
+      bytes.  If an entry's history exceeds this size, the password
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 5]
+
+                              KeePass2 XML                 February 2018
+
+
+      manager SHOULD delete the oldest history items, until the total
+      history size no longer exceeds this value.
+
+   <LastSelectedGroup>  _UUID_ of the group that was last selected by
+      the user.
+
+   <LastTopVisibleGroup>  _UUID_ of the last 'top' item.  This seems to
+      always be the root group of the database.
+
+   <Binaries>  A sequence of zero or more "<Binary>" elements containing
+      files attached to entries in the database.  Each "<Binary>"
+      element is a _BLOB_ containing the file's contents. "<Binary>"
+      elements MUST have an "ID" attribute, which is a unique _INTEGER_
+      identifying the _BLOB_ data and a _BOOLEAN_ attribute
+      "Compressed", indicating whether the _BLOB_ data is Gzip-
+      compressed [RFC1952].  A database SHOULD NOT contain two
+      "<Binary>" elements with the same _BLOB_ data.
+
+   <CustomData>  A sequence of zero or more _STRING MAP_ "<Item>"
+      elements. "<Item>" elements can be used by plugins to store
+      arbitrary string data at database level.
+
+3.2.4.  Data
+
+   The database structure under "<Root>" is a tree of _groups_.
+
+   A _group_ is an element with various attributes defined in
+   Section 3.2.4.1, containing zero or more _entries_.  A group can also
+   contain zero or more sub groups, which can again contain groups and
+   entries.
+
+   An _entry_ is a set of user credentials with key-value attributes
+   defined in Section 3.2.4.2.
+
+   The database MUST have exactly one _root group_ which is a direct
+   ancestor of the "<Root>" element containing all other groups and
+   entries.
+
+3.2.4.1.  Groups
+
+3.2.4.2.  Entries
+
+3.2.4.2.1.  Entry History
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 6]
+
+                              KeePass2 XML                 February 2018
+
+
+4.  Security Considerations
+
+   KDBX is an encrypted container format.  The security of the XML
+   payload described in this document depends on the strength of the
    cipher and passphrase / key file used for encrypting the
    encapsulating KDBX container.
 
@@ -178,7 +350,9 @@ Bevendorff               Expires August 23, 2018                [Page 3]
    arbitrarily large amount of memory on the user's system during
    parsing.
 
-5.  Normative References
+5.  References
+
+5.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -193,10 +367,32 @@ Bevendorff               Expires August 23, 2018                [Page 3]
               10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
               2003, <https://www.rfc-editor.org/info/rfc3629>.
 
+   [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
+              Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
+              <https://www.rfc-editor.org/info/rfc4648>.
+
    [XML]      Bray, T., Paoli, J., Sperberg-McQueen, C., Eve, E., and F.
               Yergeau, "Extensible Markup Language (XML) 1.0 (Fifth
               Edition)", November 2008, <https://www.w3.org/TR/2008/REC-
               xml-20081126/>.
+
+   [XMLSchema]
+              Thompson, H., Beech, D., Maloney, M., and N. Mendelsohn,
+              "XML Schema Part 1: Structures Second Edition", October
+              2004, <https://www.w3.org/TR/xmlschema-1/>.
+
+5.2.  Informative References
+
+   [RFC1952]  Deutsch, P., "GZIP file format specification version 4.3",
+              RFC 1952, DOI 10.17487/RFC1952, May 1996,
+              <https://www.rfc-editor.org/info/rfc1952>.
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 7]
+
+                              KeePass2 XML                 February 2018
+
 
 Author's Address
 
@@ -221,4 +417,32 @@ Author's Address
 
 
 
-Bevendorff               Expires August 23, 2018                [Page 4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 8]
