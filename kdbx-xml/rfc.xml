@@ -130,26 +130,27 @@ ancestor of all other groups and entries.
 <t>The schema file is only intended for informative purposes.  In practice,
 parsers SHALL NOT use this schema for strict validation.  Most importantly,
 parsers SHALL NOT make assumptions about the order of elements.  <spanx style="verb">&lt;xs:sequence&gt;</spanx>
-elements are exclusively used for Schema 1.0 compatibility, while in
+elements are used exclusively for Schema 1.0 compatibility, while in
 reality, no particular element order is guaranteed.
 </t>
-<t>Given the sensitive nature of the data contained in a password file,
+<t>Given the sensitive nature of the data contained in a passwords file,
 a parser SHOULD be reasonably forgiving while trying to read the XML
-data contained in a successfully decrypted KDBX file.
+data of a successfully decrypted KDBX file.
 </t>
 
 <section anchor="basic-data-types" title="Basic Data Types">
-<t>All fields stored in a KeePass XML file are UTF-8 string values.  For most fields,
-these string values can be arbitrary, but some fields require special data types,
-which impose extra restrictions on the allowed data format.
+<t>All data stored in a KeePass XML file is UTF-8 string data.  Most XML
+elements or attributes can contain arbitrary string values, but some elements
+or attributes require special data types, which impose extra restrictions
+on the allowed string values.
 </t>
 <t>The following special data types exist:
 </t>
 <t>
 <list style="symbols">
 <t>An <spanx style="emph">INTEGER</spanx> is a numeric decimal string consisting of one or more
-characters in the range 0 to 9.  <spanx style="emph">INTEGERs</spanx> can be signed by adding a hyphen
-character <spanx style="verb">-</spanx> in front.</t>
+characters in the range 0 to 9.  <spanx style="emph">INTEGERs</spanx> can have a negative sign <spanx style="verb">-</spanx>
+in front.</t>
 <t>A <spanx style="emph">BOOLEAN</spanx> is represented by the strings <spanx style="verb">True</spanx> and <spanx style="verb">False</spanx>.  The
 alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx> as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx> are also possible.</t>
 <t>A <spanx style="emph">DATETIME</spanx> is an XML datetime in ISO 8601 format <xref target="RFC3339"/>.</t>

@@ -109,24 +109,25 @@ A full XML 1.0 schema [@!XMLSchema] is provided in:
 The schema file is only intended for informative purposes.  In practice,
 parsers SHALL NOT use this schema for strict validation.  Most importantly,
 parsers SHALL NOT make assumptions about the order of elements.  `<xs:sequence>`
-elements are exclusively used for Schema 1.0 compatibility, while in
+elements are used exclusively for Schema 1.0 compatibility, while in
 reality, no particular element order is guaranteed.
 
-Given the sensitive nature of the data contained in a password file,
+Given the sensitive nature of the data contained in a passwords file,
 a parser SHOULD be reasonably forgiving while trying to read the XML
-data contained in a successfully decrypted KDBX file.
+data of a successfully decrypted KDBX file.
 
 ### Basic Data Types
 
-All fields stored in a KeePass XML file are UTF-8 string values.  For most fields,
-these string values can be arbitrary, but some fields require special data types,
-which impose extra restrictions on the allowed data format.
+All data stored in a KeePass XML file is UTF-8 string data.  Most XML
+elements or attributes can contain arbitrary string values, but some elements
+or attributes require special data types, which impose extra restrictions
+on the allowed string values.
 
 The following special data types exist:
 
 - An *INTEGER* is a numeric decimal string consisting of one or more
-characters in the range 0 to 9.  *INTEGERs* can be signed by adding a hyphen
-character `-` in front.
+characters in the range 0 to 9.  *INTEGERs* can have a negative sign `-`
+in front.
 
 - A *BOOLEAN* is represented by the strings `True` and `False`.  The
 alternative forms `true` and `false` as well as `1` and `0` are also possible.
