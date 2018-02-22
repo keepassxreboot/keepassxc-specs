@@ -155,7 +155,7 @@ Bevendorff               Expires August 23, 2018                [Page 2]
       sign "-" in front.
 
    o  A _BOOLEAN_ is represented by the strings "True" and "False".  The
-      alternative forms "true" and "false" as well as "1" and "0" are
+      alternative forms "true" and "false", as well as "1" and "0", are
       also possible.
 
    o  A _DATETIME_ is an XML datetime in ISO 8601 format [RFC3339].

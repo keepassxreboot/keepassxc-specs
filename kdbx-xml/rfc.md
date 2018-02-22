@@ -130,7 +130,7 @@ characters in the range 0 to 9.  *INTEGERs* can have a negative sign `-`
 in front.
 
 - A *BOOLEAN* is represented by the strings `True` and `False`.  The
-alternative forms `true` and `false` as well as `1` and `0` are also possible.
+alternative forms `true` and `false`, as well as `1` and `0`, are also possible.
 
 - A *DATETIME* is an XML datetime in ISO 8601 format [@!RFC3339].
 

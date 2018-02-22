@@ -152,7 +152,7 @@ on the allowed string values.
 characters in the range 0 to 9.  <spanx style="emph">INTEGERs</spanx> can have a negative sign <spanx style="verb">-</spanx>
 in front.</t>
 <t>A <spanx style="emph">BOOLEAN</spanx> is represented by the strings <spanx style="verb">True</spanx> and <spanx style="verb">False</spanx>.  The
-alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx> as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx> are also possible.</t>
+alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx>, as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx>, are also possible.</t>
 <t>A <spanx style="emph">DATETIME</spanx> is an XML datetime in ISO 8601 format <xref target="RFC3339"/>.</t>
 <t>A <spanx style="emph">COLOR</spanx> is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or
 a-f), preceded by a # character (e.g., #FF00FF for yellow)</t>
