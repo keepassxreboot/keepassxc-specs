@@ -135,7 +135,7 @@ alternative forms `true` and `false`, as well as `1` and `0`, are also possible.
 - A *DATETIME* is an XML datetime in ISO 8601 format [@!RFC3339].
 
 - A *COLOR* is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or
-a-f), preceded by a \# character (e.g., \#FF00FF for yellow)
+a-f), preceded by a \# character (e.g., \#FF00FF for magenta)
 
 - A *BLOB* is a Base64-encoded [@!RFC4648] string representation of
 arbitrary binary data.
