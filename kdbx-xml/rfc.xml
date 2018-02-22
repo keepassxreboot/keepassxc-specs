@@ -199,7 +199,7 @@ inside the password manager application.</t>
 <t hangText="&lt;MasterKeyChangeRec&gt;">
 <spanx style="emph">INTEGER</spanx> indicating the number of days after which the password manager
 SHOULD recommend changing the database's master key (-1 means 'never')</t>
-<t hangText="&lt;MasterKeyChangeRec&gt;">
+<t hangText="&lt;MasterKeyChangeForce&gt;">
 <spanx style="emph">INTEGER</spanx> indicating the number of days after which the password manager
 SHOULD force changing the database's master key (-1 means 'never')</t>
 <t hangText="&lt;MasterKeyChangeForceOnce&gt;">

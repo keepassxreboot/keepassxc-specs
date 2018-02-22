@@ -226,7 +226,7 @@ Bevendorff               Expires August 23, 2018                [Page 4]
                               KeePass2 XML                 February 2018
 
 
-   <MasterKeyChangeRec>  _INTEGER_ indicating the number of days after
+   <MasterKeyChangeForce>  _INTEGER_ indicating the number of days after
       which the password manager SHOULD force changing the database's
       master key (-1 means 'never')
 

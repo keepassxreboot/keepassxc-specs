@@ -187,7 +187,7 @@ inside the password manager application.
 :   *INTEGER* indicating the number of days after which the password manager
 SHOULD recommend changing the database's master key (-1 means 'never')
 
-`<MasterKeyChangeRec>`
+`<MasterKeyChangeForce>`
 :   *INTEGER* indicating the number of days after which the password manager
 SHOULD force changing the database's master key (-1 means 'never')
 
