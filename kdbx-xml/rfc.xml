@@ -46,7 +46,7 @@ the KDBX container format itself.
 
 
 <note title="Status of This Memo">
-<t>This document is not an Internet Standards Track specification; it is
+<t>This document is not normative for the KDBX file format; it is
 published for informative purposes with the goal to support development
 of KDBX-based password management applications.
 </t>
@@ -86,12 +86,39 @@ from the outer KDBX container. A note is given where this is the case.
 and 'OPTIONAL' in capital letters are used to indicate requirements
  for the format specification. Their meaning is described in <xref target="RFC2119"/>.
 </t>
-<t>If not explicitly referring to <spanx style="emph">this</spanx> RFC document, the term 'Document'
- refers to the XML payload document of the KDBX container.
+<t>The term 'Database' refers to the decrypted XML document payload of a
+ KDBX container.
 </t>
-<t>Furthermore, the term 'Database' is used to refer to the full KDBX file
- and its contained data structures.
+<t>Conversely, the term 'KDBX' refers to the full container, including
+ its encrypted XML payload.
 </t>
+
+<section anchor="general-database-structure" title="General Database Structure">
+<t>A database comprises two main parts: a <spanx style="emph">meta data section</spanx> and the actual
+<spanx style="emph">data section</spanx>.
+</t>
+<t>The meta data section contains general information about the database
+itself, maintenance information (e.g., when and how to clean up deleted
+entries), access and modification information (e.g., date and time of
+the last database title change), and additional global resources (e.g.,
+custom icons).
+</t>
+<t>The data section contains the actual user data as a tree structure of
+<spanx style="emph">groups</spanx> and <spanx style="emph">entries</spanx>.
+</t>
+<t>A <spanx style="emph">group</spanx> is an element with various attributes containing zero or
+more <spanx style="emph">entries</spanx>.  A group can also contain zero or more sub groups,
+which can again contain groups and entries.  The format of a group
+is described in <xref target="groups"/>.
+</t>
+<t>An <spanx style="emph">entry</spanx> is a set of user credentials and other related data. An entry
+MUST have a single parent group.  The attributes of an entry are
+described in <xref target="entries"/>.
+</t>
+<t>A database MUST have exactly one <spanx style="emph">root group</spanx>, which acts as common
+ancestor of all other groups and entries.
+</t>
+</section>
 </section>
 
 <section anchor="xml-format-description" title="XML Format Description">
@@ -107,33 +134,8 @@ elements are exclusively used for Schema 1.0 compatibility, while in
 reality, no particular element order is guaranteed.
 </t>
 <t>Given the sensitive nature of the data contained in a password file,
-a parser SHOULD be reasonably forgiving while trying to read a successfully
-decrypted KDBX database.
-</t>
-</section>
-
-<section anchor="semantics" title="Semantics">
-<t>A KeePass XML document SHOULD start with an XML declaration.  The encoding of
- the XML document MUST be UTF-8 <xref target="RFC3629"/>.
-</t>
-<t>The XML document MUST have a root element named <spanx style="verb">&lt;KeePassFile&gt;</spanx>.  The
- <spanx style="verb">&lt;KeePassFile&gt;</spanx> root element MUST have exactly two child nodes <spanx style="verb">&lt;Meta&gt;</spanx>
- and <spanx style="verb">&lt;Root&gt;</spanx>:
-</t>
-
-<figure align="center"><artwork align="center">
-&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
-&lt;KeePassFile&gt;
-    &lt;Meta&gt;
-        &lt;!-- Database meta data --&gt;
-    &lt;/Meta&gt;
-    &lt;Root&gt;
-        &lt;!-- Database group and entry tree --&gt;
-    &lt;/Root&gt;
-&lt;/KeePassFile&gt;
-</artwork></figure>
-<t><spanx style="verb">&lt;Meta&gt;</spanx> is the parent element for global database meta data, while <spanx style="verb">&lt;Root&gt;</spanx>
-contains the actual database structure.
+a parser SHOULD be reasonably forgiving while trying to read the XML
+data contained in a successfully decrypted KDBX file.
 </t>
 
 <section anchor="basic-data-types" title="Basic Data Types">
@@ -167,25 +169,64 @@ value string.</t>
 unique 128-bit (16-byte) identifier. <spanx style="emph">UUIDs</spanx> are encoded as <spanx style="emph">BLOBs</spanx>.
 </t>
 </section>
+</section>
 
-<section anchor="meta-data" title="Meta Data">
+<section anchor="main-elements" title="Main Elements">
+<t>A KeePass XML database SHOULD start with an XML declaration.  The encoding of
+ the XML data MUST be UTF-8 <xref target="RFC3629"/>.
+</t>
+<t>The XML document MUST have a root element named <spanx style="verb">&lt;KeePassFile&gt;</spanx>.  The
+ <spanx style="verb">&lt;KeePassFile&gt;</spanx> root element MUST have exactly two child nodes <spanx style="verb">&lt;Meta&gt;</spanx>
+ and <spanx style="verb">&lt;Root&gt;</spanx>:
+</t>
+
+<figure align="center"><artwork align="center">
+&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
+&lt;KeePassFile&gt;
+    &lt;Meta&gt;
+        &lt;!-- Database meta data --&gt;
+    &lt;/Meta&gt;
+    &lt;Root&gt;
+        &lt;!-- Database root group --&gt;
+        &lt;!-- Optional deleted object records --&gt;
+    &lt;/Root&gt;
+&lt;/KeePassFile&gt;
+</artwork></figure>
+<t><spanx style="verb">&lt;Meta&gt;</spanx> contains the database's meta data section, while <spanx style="verb">&lt;Root&gt;</spanx>
+contains the actual data section, i.e., the root group (cf.
+<xref target="general-database-structure"/>).
+</t>
+<t>Besides the database's root group, <spanx style="verb">&lt;Root&gt;</spanx> MAY also contain historical
+records of deleted objects, whose format is described in <xref target="deleted-objects"/>.
+</t>
+</section>
+
+<section anchor="meta-data-section" title="Meta Data Section">
 <t>The <spanx style="verb">&lt;Meta&gt;</spanx> element MAY contain any of the following elements at most once
 to describe various database meta data.
 </t>
 <t>
 <list style="hanging">
+<t hangText="&lt;HeaderHash&gt;">
+The SHA-256 <xref target="RFC4634"/> hash of the KDBX header data as <spanx style="emph">BLOB</spanx>.  This element is
+only useful for KDBX 3.1 or lower, but MAY also be present in KDBX 4.0 or higher.</t>
+<t hangText="&lt;SettingsChanged&gt;">
+<spanx style="emph">DATETIME</spanx> of the last change of database meta data or KDBX container
+settings.  This element is only specified for KDBX containers <spanx style="strong">version 4.0
+or higher</spanx> and MUST NOT be present in KDBX 3.1 or lower.</t>
 <t hangText="&lt;Generator&gt;">
 The name of the program that generated the KDBX file.</t>
 <t hangText="&lt;DatabaseName&gt;">
-An optional name for the KDBX database.</t>
+An optional name for the database.</t>
 <t hangText="&lt;DatabaseNameChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DatabaseName&gt;</spanx>.</t>
 <t hangText="&lt;DatabaseDescription&gt;">
-An optional description of the KDBX database.</t>
+An optional description of the database.</t>
 <t hangText="&lt;DatabaseDescriptionChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DatabaseDescription&gt;</spanx>.</t>
 <t hangText="&lt;DefaultUserName&gt;">
-The username to use as a default when creating a new entry in the database.</t>
+The username to use as a default when creating a new entry in the
+database.</t>
 <t hangText="&lt;DefaultUserNameChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DefaultUserName&gt;</spanx>.</t>
 <t hangText="&lt;MaintenanceHistoryDays&gt;">
@@ -220,13 +261,12 @@ and <xref target="entries"/>).  An icon is an <spanx style="verb">&lt;Icon&gt;</
 <t hangText="&lt;RecycleBinEnabled&gt;">
 <spanx style="emph">BOOLEAN</spanx> indicating whether the database has an enable recycle bin.</t>
 <t hangText="&lt;RecycleBinUUID&gt;">
-The <spanx style="emph">UUID</spanx> of the recycle bin group inside the database (groups are
-described in <xref target="data"/>).</t>
+The <spanx style="emph">UUID</spanx> of the recycle bin group inside the database.</t>
 <t hangText="&lt;RecycleBinChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change to the recycle bin.</t>
 <t hangText="&lt;EntryTemplatesGroup&gt;">
 The <spanx style="emph">UUID</spanx> of the group that contains templates for the creation of
-new entries (entries are also introduced in <xref target="data"/>).</t>
+new entries.</t>
 <t hangText="&lt;EntryTemplatesGroupChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change to the templates group.</t>
 <t hangText="&lt;HistoryMaxItems&gt;">
@@ -258,19 +298,7 @@ elements can be used by plugins to store arbitrary string data at database level
 </t>
 </section>
 
-<section anchor="data" title="Data">
-<t>The database structure under <spanx style="verb">&lt;Root&gt;</spanx> is a tree of <spanx style="emph">groups</spanx>.
-</t>
-<t>A <spanx style="emph">group</spanx> is an element with various attributes defined in <xref target="groups"/>,
-containing zero or more <spanx style="emph">entries</spanx>.  A group can also contain zero or
-more sub groups, which can again contain groups and entries.
-</t>
-<t>An <spanx style="emph">entry</spanx> is a set of user credentials with key-value attributes defined in
- <xref target="entries"/>.
-</t>
-<t>The database MUST have exactly one <spanx style="emph">root group</spanx> which is a direct ancestor
-of the <spanx style="verb">&lt;Root&gt;</spanx> element containing all other groups and entries.
-</t>
+<section anchor="data-section" title="Data Section">
 
 <section anchor="groups" title="Groups">
 </section>
@@ -280,6 +308,8 @@ of the <spanx style="verb">&lt;Root&gt;</spanx> element containing all other gro
 <section anchor="entry-history" title="Entry History">
 </section>
 </section>
+
+<section anchor="deleted-objects" title="Deleted Objects">
 </section>
 </section>
 </section>
@@ -366,6 +396,7 @@ arbitrarily large amount of memory on the user's system during parsing.
 </references>
 <references title="Informative References">
 <?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1952.xml"?>
+<?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4634.xml"?>
 </references>
 
 </back>

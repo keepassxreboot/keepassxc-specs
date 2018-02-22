@@ -32,7 +32,7 @@ the KDBX container format itself.
 
 .# Status of This Memo
 
-This document is not an Internet Standards Track specification; it is
+This document is not normative for the KDBX file format; it is
 published for informative purposes with the goal to support development
 of KDBX-based password management applications.
 
@@ -67,11 +67,37 @@ In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED',
 and 'OPTIONAL' in capital letters are used to indicate requirements
  for the format specification. Their meaning is described in [@!RFC2119].
  
- If not explicitly referring to *this* RFC document, the term 'Document'
- refers to the XML payload document of the KDBX container.
+ The term 'Database' refers to the decrypted XML document payload of a
+ KDBX container.
  
- Furthermore, the term 'Database' is used to refer to the full KDBX file
- and its contained data structures.
+ Conversely, the term 'KDBX' refers to the full container, including
+ its encrypted XML payload.
+
+## General Database Structure
+
+A database comprises two main parts: a *meta data section* and the actual
+*data section*.
+
+The meta data section contains general information about the database
+itself, maintenance information (e.g., when and how to clean up deleted
+entries), access and modification information (e.g., date and time of
+the last database title change), and additional global resources (e.g.,
+custom icons).
+
+The data section contains the actual user data as a tree structure of
+*groups* and *entries*.
+
+A *group* is an element with various attributes containing zero or
+more *entries*.  A group can also contain zero or more sub groups,
+which can again contain groups and entries.  The format of a group
+is described in (#groups).
+
+An *entry* is a set of user credentials and other related data. An entry
+MUST have a single parent group.  The attributes of an entry are
+described in (#entries).
+
+A database MUST have exactly one *root group*, which acts as common
+ancestor of all other groups and entries.
 
 # XML Format Description
 
@@ -87,32 +113,8 @@ elements are exclusively used for Schema 1.0 compatibility, while in
 reality, no particular element order is guaranteed.
 
 Given the sensitive nature of the data contained in a password file,
-a parser SHOULD be reasonably forgiving while trying to read a successfully
-decrypted KDBX database.
-
-## Semantics
-
-A KeePass XML document SHOULD start with an XML declaration.  The encoding of
- the XML document MUST be UTF-8 [@!RFC3629].
- 
- The XML document MUST have a root element named `<KeePassFile>`.  The
- `<KeePassFile>` root element MUST have exactly two child nodes `<Meta>`
- and `<Root>`:
-
-~~~
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<KeePassFile>
-    <Meta>
-        <!-- Database meta data -->
-    </Meta>
-    <Root>
-        <!-- Database group and entry tree -->
-    </Root>
-</KeePassFile>
-~~~
-
-`<Meta>` is the parent element for global database meta data, while `<Root>`
-contains the actual database structure.
+a parser SHOULD be reasonably forgiving while trying to read the XML
+data contained in a successfully decrypted KDBX file.
 
 ### Basic Data Types
 
@@ -146,28 +148,67 @@ value string.
 Unique resources inside the database are identified by a *UUID*, which is a globally
 unique 128-bit (16-byte) identifier. *UUIDs* are encoded as *BLOBs*.
 
-### Meta Data
+## Main Elements
+
+A KeePass XML database SHOULD start with an XML declaration.  The encoding of
+ the XML data MUST be UTF-8 [@!RFC3629].
+ 
+ The XML document MUST have a root element named `<KeePassFile>`.  The
+ `<KeePassFile>` root element MUST have exactly two child nodes `<Meta>`
+ and `<Root>`:
+
+~~~
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<KeePassFile>
+    <Meta>
+        <!-- Database meta data -->
+    </Meta>
+    <Root>
+        <!-- Database root group -->
+        <!-- Optional deleted object records -->
+    </Root>
+</KeePassFile>
+~~~
+
+`<Meta>` contains the database's meta data section, while `<Root>`
+contains the actual data section, i.e., the root group (cf.
+(#general-database-structure)).
+
+Besides the database's root group, `<Root>` MAY also contain historical
+records of deleted objects, whose format is described in (#deleted-objects).
+
+## Meta Data Section
 
 The `<Meta>` element MAY contain any of the following elements at most once
 to describe various database meta data.
+
+`<HeaderHash>`
+:   The SHA-256 [@RFC4634] hash of the KDBX header data as *BLOB*.  This element is
+only useful for KDBX 3.1 or lower, but MAY also be present in KDBX 4.0 or higher.
+
+`<SettingsChanged>`
+:   *DATETIME* of the last change of database meta data or KDBX container
+settings.  This element is only specified for KDBX containers **version 4.0
+or higher** and MUST NOT be present in KDBX 3.1 or lower.
 
 `<Generator>`
 :   The name of the program that generated the KDBX file.
 
 `<DatabaseName>`
-:   An optional name for the KDBX database.
+:   An optional name for the database.
 
 `<DatabaseNameChanged>`
 :   *DATETIME* of the last change of `<DatabaseName>`.
 
 `<DatabaseDescription>`
-:   An optional description of the KDBX database.
+:   An optional description of the database.
 
 `<DatabaseDescriptionChanged>`
 :   *DATETIME* of the last change of `<DatabaseDescription>`.
 
 `<DefaultUserName>`
-:   The username to use as a default when creating a new entry in the database.
+:   The username to use as a default when creating a new entry in the
+database.
 
 `<DefaultUserNameChanged>`
 :   *DATETIME* of the last change of `<DefaultUserName>`.
@@ -213,15 +254,14 @@ and (#entries)).  An icon is an `<Icon>` element, which has exactly two children
 :   *BOOLEAN* indicating whether the database has an enable recycle bin.
 
 `<RecycleBinUUID>`
-:   The *UUID* of the recycle bin group inside the database (groups are
-described in (#data)).
+:   The *UUID* of the recycle bin group inside the database.
 
 `<RecycleBinChanged>`
 :   *DATETIME* of the last change to the recycle bin.
 
 `<EntryTemplatesGroup>`
 :   The *UUID* of the group that contains templates for the creation of
-new entries (entries are also introduced in (#data)).
+new entries.
 
 `<EntryTemplatesGroupChanged>`
 :   *DATETIME* of the last change to the templates group.
@@ -257,25 +297,15 @@ A database SHOULD NOT contain two `<Binary>` elements with the same *BLOB* data.
 :   A sequence of zero or more *STRING MAP* `<Item>` elements. `<Item>`
 elements can be used by plugins to store arbitrary string data at database level.
 
-### Data
+## Data Section
 
-The database structure under `<Root>` is a tree of *groups*.
+### Groups
 
-A *group* is an element with various attributes defined in (#groups),
-containing zero or more *entries*.  A group can also contain zero or
-more sub groups, which can again contain groups and entries.  
+### Entries
 
-An *entry* is a set of user credentials with key-value attributes defined in
- (#entries).
+#### Entry History
 
-The database MUST have exactly one *root group* which is a direct ancestor
-of the `<Root>` element containing all other groups and entries.
-
-#### Groups
-
-#### Entries
-
-##### Entry History
+### Deleted Objects
 
 # Security Considerations
 
