@@ -208,7 +208,7 @@ Bevendorff               Expires August 23, 2018                [Page 3]
           </KeePassFile>
 
    "<Meta>" contains the database's meta data section, while "<Root>"
-   contains the actual data section, i.e., the root group (cf.
+   contains the actual data section, i.e., the root group (see
    Section 2.1).
 
    Besides the database's root group, "<Root>" MAY also contain

@@ -194,7 +194,7 @@ unique 128-bit (16-byte) identifier. <spanx style="emph">UUIDs</spanx> are encod
 &lt;/KeePassFile&gt;
 </artwork></figure>
 <t><spanx style="verb">&lt;Meta&gt;</spanx> contains the database's meta data section, while <spanx style="verb">&lt;Root&gt;</spanx>
-contains the actual data section, i.e., the root group (cf.
+contains the actual data section, i.e., the root group (see
 <xref target="general-database-structure"/>).
 </t>
 <t>Besides the database's root group, <spanx style="verb">&lt;Root&gt;</spanx> MAY also contain historical

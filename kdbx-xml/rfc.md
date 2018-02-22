@@ -172,7 +172,7 @@ A KeePass XML database SHOULD start with an XML declaration.  The encoding of
 ~~~
 
 `<Meta>` contains the database's meta data section, while `<Root>`
-contains the actual data section, i.e., the root group (cf.
+contains the actual data section, i.e., the root group (see
 (#general-database-structure)).
 
 Besides the database's root group, `<Root>` MAY also contain historical
