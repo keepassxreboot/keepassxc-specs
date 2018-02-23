@@ -44,12 +44,12 @@ Table of Contents
        3.1.2.  Identifiers . . . . . . . . . . . . . . . . . . . . .   4
      3.2.  Main Elements . . . . . . . . . . . . . . . . . . . . . .   4
      3.3.  Meta Data Section . . . . . . . . . . . . . . . . . . . .   5
-     3.4.  Data Section  . . . . . . . . . . . . . . . . . . . . . .   7
-       3.4.1.  Groups  . . . . . . . . . . . . . . . . . . . . . . .   7
-       3.4.2.  Entries . . . . . . . . . . . . . . . . . . . . . . .   7
-       3.4.3.  Deleted Objects . . . . . . . . . . . . . . . . . . .   7
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     3.4.  Data Section  . . . . . . . . . . . . . . . . . . . . . .   8
+       3.4.1.  Groups  . . . . . . . . . . . . . . . . . . . . . . .   8
+       3.4.2.  Entries . . . . . . . . . . . . . . . . . . . . . . .   8
+       3.4.3.  Deleted Objects . . . . . . . . . . . . . . . . . . .   8
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
 
 
 
@@ -58,9 +58,9 @@ Bevendorff               Expires August 23, 2018                [Page 1]
                               KeePass2 XML                 February 2018
 
 
-     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   7
-     5.2.  Informative References  . . . . . . . . . . . . . . . . .   8
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
+     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
+     5.2.  Informative References  . . . . . . . . . . . . . . . . .   9
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
@@ -183,9 +183,23 @@ Bevendorff               Expires August 23, 2018                [Page 3]
 
 3.1.2.  Identifiers
 
-   Unique resources inside the database are identified by a _UUID_,
-   which is a globally unique 128-bit (16-byte) identifier. _UUIDs_ are
-   encoded as _BLOBs_.
+   Data records (i.e., groups or entries) inside a database are
+   identified by a _UUID_, which is a globally unique 128-bit (16-byte)
+   identifier encoded as a _BLOB_.
+
+   An element of type _UUID_ either directly defines the UUID of a
+   record (indicated by _KEY_) or it is used to represent a reference to
+   another record identified by this UUID (indicated by _REF_).  If the
+   element is a reference, but the target is undefined or does not
+   exist, the zero UUID MUST be used to indicate an invalid reference.
+   The zero UUID is a 16-tuple of "0x0" bytes in Base64 encoding (i.e.,
+   "AAAAAAAAAAAAAAAAAAAAAA==").  Where allowed, the referencing element
+   MAY also be skipped instead of using the zero UUID.
+
+   If a _UUID_ element is a reference and the UUID is not the zero UUID,
+   the referenced record MUST exist.
+
+   The zero UUID itself MUST NOT be used as a _KEY_.
 
 3.2.  Main Elements
 
@@ -195,6 +209,22 @@ Bevendorff               Expires August 23, 2018                [Page 3]
    The XML document MUST have a root element named "<KeePassFile>".  The
    "<KeePassFile>" root element MUST have exactly two child nodes
    "<Meta>" and "<Root>":
+
+
+
+
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 4]
+
+                              KeePass2 XML                 February 2018
+
 
           <?xml version="1.0" encoding="utf-8" standalone="yes"?>
           <KeePassFile>
@@ -214,17 +244,6 @@ Bevendorff               Expires August 23, 2018                [Page 3]
    Besides the database's root group, "<Root>" MAY also contain
    historical records of deleted objects, whose format is described in
    Section 3.4.3.
-
-
-
-
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 4]
-
-                              KeePass2 XML                 February 2018
-
 
 3.3.  Meta Data Section
 
@@ -255,6 +274,14 @@ Bevendorff               Expires August 23, 2018                [Page 4]
    <DefaultUserName>  The username to use as a default when creating a
       new entry in the database.
 
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 5]
+
+                              KeePass2 XML                 February 2018
+
+
    <DefaultUserNameChanged>  _DATETIME_ of the last change of
       "<DefaultUserName>".
 
@@ -274,13 +301,6 @@ Bevendorff               Expires August 23, 2018                [Page 4]
    <MasterKeyChangeForce>  _INTEGER_ indicating the number of days after
       which the password manager SHOULD force changing the database's
       master key (-1 means 'never')
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 5]
-
-                              KeePass2 XML                 February 2018
-
 
    <MasterKeyChangeForceOnce>  _BOOLEAN_ indicating that the password
       manager SHOULD force changing the database's master key next time
@@ -304,13 +324,21 @@ Bevendorff               Expires August 23, 2018                [Page 5]
    <RecycleBinEnabled>  _BOOLEAN_ indicating whether the database has an
       enable recycle bin.
 
-   <RecycleBinUUID>  The _UUID_ of the recycle bin group inside the
-      database.
+   <RecycleBinUUID> (REF)  The _UUID_ of the recycle bin group inside
+      the database.
 
    <RecycleBinChanged>  _DATETIME_ of the last change to the recycle
       bin.
 
-   <EntryTemplatesGroup>  The _UUID_ of the group that contains
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 6]
+
+                              KeePass2 XML                 February 2018
+
+
+   <EntryTemplatesGroup> (REF)  The _UUID_ of the group that contains
       templates for the creation of new entries.
 
    <EntryTemplatesGroupChanged>  _DATETIME_ of the last change to the
@@ -328,18 +356,13 @@ Bevendorff               Expires August 23, 2018                [Page 5]
       manager SHOULD delete the oldest history items, until the total
       history size no longer exceeds this value.
 
-   <LastSelectedGroup>  _UUID_ of the group that was last selected by
-      the user.
+   <LastSelectedGroup> (REF)  _UUID_ of the group that was last selected
+      by the user.
 
-
-
-Bevendorff               Expires August 23, 2018                [Page 6]
-
-                              KeePass2 XML                 February 2018
-
-
-   <LastTopVisibleGroup>  _UUID_ of the last 'top' item.  This seems to
-      always be the root group of the database.
+   <LastTopVisibleGroup> (REF)  _UUID_ of the top-most group that is
+      still visible with the user's current scroll settings.  GUI
+      implementations MAY use this element to save the scroll state of
+      the groups tree.
 
    <Binaries> (KDBX 3.1)  A sequence of zero or more "<Binary>" elements
       containing files attached to entries in the database.  Each
@@ -347,15 +370,29 @@ Bevendorff               Expires August 23, 2018                [Page 6]
       "<Binary>" elements MUST have an "ID" attribute, which is a unique
       _INTEGER_ identifying the _BLOB_ data and a _BOOLEAN_ attribute
       "Compressed", indicating whether the _BLOB_ data is Gzip-
-      compressed [RFC1952].  A database SHOULD NOT contain two
-      "<Binary>" elements with the same _BLOB_ data.  This element is
-      only specified for KDBX 3.1 and lower.  KDBX 4.0 stores files in
-      its encrypted binary inner header, so this element MUST NOT be
-      present if the container format is version 4.0 or higher.
+      compressed [RFC1952].
+      A database SHOULD NOT contain two "<Binary>" elements with the
+      same _BLOB_ data.
+      This element is only specified for KDBX 3.1 and lower.  KDBX 4.0
+      stores files in its encrypted binary inner header, so this element
+      MUST NOT be present if the container format is version 4.0 or
+      higher.
 
    <CustomData>  A sequence of zero or more _STRING MAP_ "<Item>"
       elements. "<Item>" elements can be used by plugins to store
       arbitrary string data at database level.
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 7]
+
+                              KeePass2 XML                 February 2018
+
 
 3.4.  Data Section
 
@@ -383,17 +420,6 @@ Bevendorff               Expires August 23, 2018                [Page 6]
 
 5.1.  Normative References
 
-
-
-
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 7]
-
-                              KeePass2 XML                 February 2018
-
-
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
@@ -415,6 +441,14 @@ Bevendorff               Expires August 23, 2018                [Page 7]
               Yergeau, "Extensible Markup Language (XML) 1.0 (Fifth
               Edition)", November 2008, <https://www.w3.org/TR/2008/REC-
               xml-20081126/>.
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 8]
+
+                              KeePass2 XML                 February 2018
+
 
    [XMLSchema]
               Thompson, H., Beech, D., Maloney, M., and N. Mendelsohn,
@@ -445,4 +479,26 @@ Author's Address
 
 
 
-Bevendorff               Expires August 23, 2018                [Page 8]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 9]

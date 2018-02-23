@@ -65,13 +65,13 @@ from the outer KDBX container. A note is given where this is the case.
 In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED',
 'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
 and 'OPTIONAL' in capital letters are used to indicate requirements
- for the format specification. Their meaning is described in [@!RFC2119].
- 
- The term 'Database' refers to the decrypted XML document payload of a
- KDBX container.
- 
- Conversely, the term 'KDBX' refers to the full container, including
- its encrypted XML payload.
+for the format specification. Their meaning is described in [@!RFC2119].
+
+The term 'Database' refers to the decrypted XML document payload of a
+KDBX container.
+
+Conversely, the term 'KDBX' refers to the full container, including
+its encrypted XML payload.
 
 ## General Database Structure
 
@@ -147,8 +147,23 @@ value string.
 
 ### Identifiers
 
-Unique resources inside the database are identified by a *UUID*, which is a
-globally unique 128-bit (16-byte) identifier. *UUIDs* are encoded as *BLOBs*.
+Data records (i.e., groups or entries) inside a database are
+identified by a *UUID*, which is a globally unique 128-bit (16-byte)
+identifier encoded as a *BLOB*.
+
+An element of type *UUID* either directly defines the UUID of a record
+(indicated by *KEY*) or it is used to represent a reference to another
+record identified by this UUID (indicated by *REF*).  If the element is a
+reference, but the target is undefined or does not exist, the zero UUID
+MUST be used to indicate an invalid reference.  The zero UUID is a 16-tuple
+of `0x0` bytes in Base64 encoding (i.e., `AAAAAAAAAAAAAAAAAAAAAA==`).
+Where allowed, the referencing element MAY also be skipped instead of using
+the zero UUID.
+
+If a *UUID* element is a reference and the UUID is not the zero UUID,
+the referenced record MUST exist.
+
+The zero UUID itself MUST NOT be used as a *KEY*.
 
 ## Main Elements
 
@@ -256,13 +271,13 @@ to describe various database meta data.
 `<RecycleBinEnabled>`
 :   *BOOLEAN* indicating whether the database has an enable recycle bin.
 
-`<RecycleBinUUID>`
+`<RecycleBinUUID>` (*REF*)
 :   The *UUID* of the recycle bin group inside the database.
 
 `<RecycleBinChanged>`
 :   *DATETIME* of the last change to the recycle bin.
 
-`<EntryTemplatesGroup>`
+`<EntryTemplatesGroup>` (*REF*)
 :   The *UUID* of the group that contains templates for the creation of
     new entries.
 
@@ -281,12 +296,13 @@ to describe various database meta data.
     history exceeds this size, the password manager SHOULD delete the oldest
     history items, until the total history size no longer exceeds this value.
 
-`<LastSelectedGroup>`
+`<LastSelectedGroup>` (*REF*)
 :   *UUID* of the group that was last selected by the user.
 
-`<LastTopVisibleGroup>`
-:   *UUID* of the last 'top' item. This seems to always be the root group
-    of the database.
+`<LastTopVisibleGroup>` (*REF*)
+:   *UUID* of the top-most group that is still visible with the user's current
+    scroll settings.  GUI implementations MAY use this element to save the
+    scroll state of the groups tree.
 
 `<Binaries>` (KDBX 3.1)
 :   A sequence of zero or more `<Binary>` elements containing files attached

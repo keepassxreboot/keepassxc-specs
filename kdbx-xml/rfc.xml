@@ -84,13 +84,13 @@ from the outer KDBX container. A note is given where this is the case.
 <t>In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED',
 'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY',
 and 'OPTIONAL' in capital letters are used to indicate requirements
- for the format specification. Their meaning is described in <xref target="RFC2119"/>.
+for the format specification. Their meaning is described in <xref target="RFC2119"/>.
 </t>
 <t>The term 'Database' refers to the decrypted XML document payload of a
- KDBX container.
+KDBX container.
 </t>
 <t>Conversely, the term 'KDBX' refers to the full container, including
- its encrypted XML payload.
+its encrypted XML payload.
 </t>
 
 <section anchor="general-database-structure" title="General Database Structure">
@@ -167,8 +167,23 @@ value string.</t>
 </section>
 
 <section anchor="identifiers" title="Identifiers">
-<t>Unique resources inside the database are identified by a <spanx style="emph">UUID</spanx>, which is a
-globally unique 128-bit (16-byte) identifier. <spanx style="emph">UUIDs</spanx> are encoded as <spanx style="emph">BLOBs</spanx>.
+<t>Data records (i.e., groups or entries) inside a database are
+identified by a <spanx style="emph">UUID</spanx>, which is a globally unique 128-bit (16-byte)
+identifier encoded as a <spanx style="emph">BLOB</spanx>.
+</t>
+<t>An element of type <spanx style="emph">UUID</spanx> either directly defines the UUID of a record
+(indicated by <spanx style="emph">KEY</spanx>) or it is used to represent a reference to another
+record identified by this UUID (indicated by <spanx style="emph">REF</spanx>).  If the element is a
+reference, but the target is undefined or does not exist, the zero UUID
+MUST be used to indicate an invalid reference.  The zero UUID is a 16-tuple
+of <spanx style="verb">0x0</spanx> bytes in Base64 encoding (i.e., <spanx style="verb">AAAAAAAAAAAAAAAAAAAAAA==</spanx>).
+Where allowed, the referencing element MAY also be skipped instead of using
+the zero UUID.
+</t>
+<t>If a <spanx style="emph">UUID</spanx> element is a reference and the UUID is not the zero UUID,
+the referenced record MUST exist.
+</t>
+<t>The zero UUID itself MUST NOT be used as a <spanx style="emph">KEY</spanx>.
 </t>
 </section>
 </section>
@@ -263,11 +278,11 @@ children <spanx style="verb">&lt;UUID&gt;</spanx> (a <spanx style="emph">UUID</s
 data as <spanx style="emph">BLOB</spanx>.</t>
 <t hangText="&lt;RecycleBinEnabled&gt;">
 <spanx style="emph">BOOLEAN</spanx> indicating whether the database has an enable recycle bin.</t>
-<t hangText="&lt;RecycleBinUUID&gt;">
+<t hangText="&lt;RecycleBinUUID&gt; (REF)">
 The <spanx style="emph">UUID</spanx> of the recycle bin group inside the database.</t>
 <t hangText="&lt;RecycleBinChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change to the recycle bin.</t>
-<t hangText="&lt;EntryTemplatesGroup&gt;">
+<t hangText="&lt;EntryTemplatesGroup&gt; (REF)">
 The <spanx style="emph">UUID</spanx> of the group that contains templates for the creation of
 new entries.</t>
 <t hangText="&lt;EntryTemplatesGroupChanged&gt;">
@@ -282,11 +297,12 @@ of history items no longer exceeds this value.</t>
 An <spanx style="emph">INTEGER</spanx> indicating the maximum history size in bytes. If an entry's
 history exceeds this size, the password manager SHOULD delete the oldest
 history items, until the total history size no longer exceeds this value.</t>
-<t hangText="&lt;LastSelectedGroup&gt;">
+<t hangText="&lt;LastSelectedGroup&gt; (REF)">
 <spanx style="emph">UUID</spanx> of the group that was last selected by the user.</t>
-<t hangText="&lt;LastTopVisibleGroup&gt;">
-<spanx style="emph">UUID</spanx> of the last 'top' item. This seems to always be the root group
-of the database.</t>
+<t hangText="&lt;LastTopVisibleGroup&gt; (REF)">
+<spanx style="emph">UUID</spanx> of the top-most group that is still visible with the user's current
+scroll settings.  GUI implementations MAY use this element to save the
+scroll state of the groups tree.</t>
 <t hangText="&lt;Binaries&gt; (KDBX 3.1)">
 A sequence of zero or more <spanx style="verb">&lt;Binary&gt;</spanx> elements containing files attached
 to entries in the database.  Each <spanx style="verb">&lt;Binary&gt;</spanx> element is a <spanx style="emph">BLOB</spanx> containing
