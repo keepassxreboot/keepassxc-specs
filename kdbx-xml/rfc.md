@@ -148,7 +148,18 @@ arbitrary binary data.
 
 - A *STRING MAP* is a complex XML type with exactly two child elements
 `<Key>` and `<Value>` describing a mapping between a key string and a
-value string.
+value string.  The `<Value>` element MAY have the *BOOLEAN* attribute
+`ProtectInMemory` to indicate that the value should be protected at
+runtime by in-memory encryption.
+
+### Protected Elements
+
+All non-complex XML elements (including elements of the non-complex types
+described in (#basic-data-types)) MAY have a *BOOLEAN* `Protected`
+attribute.  If this attribute is set to `True`, the element's string data
+MUST be a *BLOB* of encrypted data which must be decrypted before use.
+The data MUST be encrypted with the KDBX container's inner random
+stream cipher.
 
 ### Identifiers
 
@@ -217,7 +228,7 @@ records of deleted objects, whose format is described in (#deleted-objects).
 
 ## Meta Data Section
 
-The `<Meta>` element MAY contain any of the following elements at most once
+The `<Meta>` element can contain any of the following elements at most once
 to describe various database meta data.
 
 `<HeaderHash>` (KDBX 3.1)
@@ -253,7 +264,7 @@ to describe various database meta data.
 
 `<MaintenanceHistoryDays>`
 :   *INTEGER* indicating the maximum age of the oldest history item
-    to keep in days.
+    to keep in days when performing database maintenance.
 
 `<Color>`
 :   A *COLOR* that can be used for coloring the program icon or database tab
@@ -356,13 +367,13 @@ arbitrary number of sub groups and entries.  A detailed description of
 the database structure was given in (#general-database-structure).
 
 A group is represented by a `<Group>` element, which MUST have a `<UUID>`
-child element of type *UUID*, defining the *KEY* of this group.
+child element of type *UUID* defining the *KEY* of this group.
 
 Any `<Group>` element inside another `<Group>` element is a sub group.
 `<Entry>` elements inside a `<Group>` element are child entries of that group
 (see (#entries)).
 
-In addition, a group MAY have any of the following elements at most once:
+In addition, a group can have any of the following child elements at most once:
 
 `<Name>`
 :   A user-specified name for this group.
@@ -383,7 +394,7 @@ In addition, a group MAY have any of the following elements at most once:
 `<Times>`
 :   A complex XML type containing information about the group's last access,
     modification, or expiry date and time. A detailed description is given in
-    (#times-and-expiry)
+    (#times-and-expiry).
 
 `<IsExpanded>` (*EPH*)
 :   If a GUI implementation allows the user to expand and collapse sub trees,
@@ -402,7 +413,7 @@ In addition, a group MAY have any of the following elements at most once:
     parent group.  If this is the root group, `Null` is equivalent to `True`.
     Individual sub groups may override this value.  If a group enables
     Auto-Type, individual entries in this group may still choose to disable it.
-    However, disabling Auto-Type at group level disables it for all direct
+    However, disabling Auto-Type at group level SHOULD disable it for all direct
     child entries, regardless of their setting.
 
 `<EnableSearching>`
@@ -426,13 +437,184 @@ In addition, a group MAY have any of the following elements at most once:
 
 ### Entries
 
+An entry is where the user saves their actual secret data and credentials. 
+
+An entry is represented by an `<Entry>` element, which MUST be a child
+of a `<Group>` element.  Like `<Group>`, an `<Entry>` MUST have a `<UUID>`
+child element of type *UUID* defining the *KEY* of this entry.
+
+For storing the actual data, an entry can have an arbitrary number of
+`<String>` elements of type *STRING MAP*.  Besides arbitrary user-defined
+keys, the following keys SHOULD be present and displayed as dedicated
+input fields and display columns:
+
+`Title`
+:   The entry title.
+
+`UserName`
+:   The username of this entry.
+
+`Password`
+:   The password of this entry.
+
+`URL`
+:   A URL to a remote location which this entry is used for.  An implementation
+    SHOULD render this as a clickable link that launches a program associated
+    with the URL's scheme.  The cmd:// scheme SHOULD execute arbitrary commands.
+
+`Notes`
+:   Additional notes the user may save with this entry.
+
+In addition to `<String>` elements, an entry can also have an arbitrary number
+of`<Binary>` elements.  This element is has a complex XML type defining a
+reference to a file attachment.  The structure of this type is similar to
+*STRING MAP* in that it MUST have an element `<Key>`, setting a key for this
+attachment (usually the file name) and an element `<Value>`.
+
+Though unlike *STRING MAP*, the `<Value>` element MUST *either* have an *INTEGER*
+`Ref` attribute and no content *or* the raw attachment data as *BLOB* and no
+attribute.  There are also no attributes for in-memory encryption.
+
+For KDBX 3.1 or lower, the `Ref` attribute references a `<Binary>` from
+the `<Binaries>` element inside the database's meta data section by its `ID`
+attribute.
+
+For KDBX 4.0 or higher, it references an item from the container's encrypted
+binary inner header by its position.
+
+If the container format is KDBX 4.0 or higher, an entry MAY also have a
+`<CustomData>` element for saving arbitrary plugin data, identical to the one
+that can be set at group level.  See (#groups) for a description of this element.
+As for groups, the container format MUST be KDBX 4.0 or higher if this
+element exists.
+
+#### Fixed Data
+
+Besides arbitrarily many `<String>` and `<Binary>` elements, the following
+*fixed-data* elements can occur at most once:
+
+`<IconID>`
+:   The *INTEGER* identifier of a standard icon to display for this group.
+    Standard icons are described in (#standard-icons)
+
+`<ForegroundColor>`
+:   A *COLOR* to be used as custom entry text color.
+
+`<BackgroundColor>`
+:   A *COLOR* to be used as custom entry background color.
+
+`<OverrideURL>`
+:   An additional URL that overrides the triggered target when the user
+    clicks the Link generated from the `URL` string field.
+
+`<Tags>`
+:   A list of used-defined tags for this entry separated by semicolons `;`.
+    Tags allow to classify entries orthogonally to the group hierarchy.
+
+`<Times>`
+:   A complex XML type containing information about this entry's last access,
+    modification, or expiry date and time. A detailed description is given in
+    (#times-and-expiry).
+
+`<AutoType>`
+:   A complex XML type containing information about this entry's Auto-Type
+    settings. A detailed description is given in (#autotype-settings).
+
+`<History>`
+:   A sequence of previous versions of this entry.  History items are
+    described in (#entry-history).
+
+#### Auto-Type Settings
+
+An implementation SHOULD try to match window titles for Auto-Type automatically
+with data from an entry and use `{USERNAME}{TAB}{PASSWORD}{ENTER}` as a default
+Auto-Type sequence.  To lower the risk of accidental submission to wrong input
+forms, it MAY also reduce the default sequence to `{USERNAME}{TAB}{PASSWORD}`.
+
+An entry MAY specify additional Auto-Type settings, which override the default
+Auto-Type settings provided by the implementation.  This is done in an
+`<AutoType>` element inside the `<Entry>`.  The following child elements are
+possible and can occur at most once:
+
+`<Enabled>`
+:   *BOOLEAN* indicating whether Auto-Type should be enabled for this entry.
+    The default SHOULD be `True`.  If Auto-Type is enabled for the parent group,
+    this can be used to override the setting.  On the other hand, if Auto-Type
+    is disabled for the parent group, this setting SHOULD have no effect.
+
+`<DataTransferObfuscation>`
+:   *BOOLEAN* indicating whether an implementation MAY try to obfuscate Auto-Type
+    key strokes to make it harder for key loggers to record the full sequence.
+
+`<DefaultSequence>`
+:   The default Auto-Type sequence to use for this entry (overrides the global
+    or group default).
+
+Additionally, the user SHOULD be able to add additional window associations to
+an entry.  A window association is a specific Auto-Type setting for a specific
+window.  An entry can hold an arbitrary number of `<Association>` elements,
+one for every individual window association.
+
+An `<Association>` MUST have the following two elements:
+
+`<Window>`
+:   The title of the window to match with this entry.  The string MUST support
+    `*` as a wildcard character.
+
+`<KeystrokeSequence>`
+:   A custom Auto-Type sequence.  If the value is left empty, the sequence
+    from `<DefaultSequence>` is used or, if that is empty as well, the group
+    or global default.
+
 #### Entry History
+
+To improve robustness against user credential loss by accidental edits, all
+changes to an entry SHOULD be recorded in an entry's history.
+
+For this, an implementation SHOULD create a copy of an entry (excluding its
+history) and add it to the original entry's `<History>` before applying any
+modifications to the original entry.  This applies to all user-initiated,
+non-ephemeral database changes which would result in an updated KDBX file
+when saved.
+
+A history item SHOULD be created immediately when the user commits a change
+to the database, not only when the updated KDBX file is actually saved to
+disk.
+
+The newest history item MUST be last in the list.  Copying and adding an item
+to the history MUST NOT change any of its elements. This also applies to all
+ephemeral elements.  The history item MUST capture the exact state of the
+original element before modification.
+
+After adding a new history item, an implementation SHOULD ensure that the
+history does not grow larger than the configured limits.
+
+If the new number of history items exceeds the value configured in the
+`<HistoryMaxItems>` setting from the databases meta data, the oldest history
+items SHOULD be deleted until the number of actual history items does not
+exceed this number anymore.
+
+Similarly, if the total size of the history in bytes exceeds
+`<HistoryMaxSize>`, the oldest items SHOULD be deleted, until the total size
+does not exceed this number anymore.  The size of the history is calculated by
+adding the sizes of all entries in the history.
+
+The size of an entry SHOULD be calculated as the sum of its UTF-8 string data
+in bytes, including all `<String>`, `<Binary>`, and `<CustomData>` keys and
+values, Auto-Type `<Association>` window titles and sequences, `<Tags>`,
+`<OverrideURL>` and the remaining fixed data.  For simplicity, the latter
+MAY be estimated as `128`.
+
+The size of `<Binary>` values SHOULD calculated *after* Base64 decoding.  
+
+An implementation MAY also provide a manual or automatic database maintenance
+feature, which deletes all history items older than `<MaintenanceHistoryDays>`.
 
 ### Times And Expiry
 
 Groups and entries (hereafter called *items*) MAY have a `<Times>` element
 recording and configuring various time- and usage-based data.  If present,
-the `<Times>` element MAY have any the following child elements at most once:
+the `<Times>` element can have any the following child elements at most once:
 
 `<CreationTime>`
 :   *DATETIME* when the item was created.
@@ -470,6 +652,18 @@ the `<Times>` element MAY have any the following child elements at most once:
     This MAY be updated whenever the parent of an item changes.
 
 ### Deleted Objects
+
+When a group or an entry is deleted, an implementation MAY add a note about
+this deletion in `<DeletedObjects>` of the data section.  This is to allow proper
+two-way remote synchronization of databases.
+
+Such a note is a `<DeletedObject>` element, which MUST have a `<UUID>` element
+of type *UUID* (*KEY*) with the UUID of the deleted object and a `<DeletionTime>`
+element of type *DATETIME* recording the date and time this item was deleted.
+
+If an implementation keeps track of deleted groups and entries, it SHOULD also
+provide an automatic or manual maintenance feature to clean up old deleted object
+notes.
 
 # Standard Icons
 

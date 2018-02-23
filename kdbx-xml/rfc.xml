@@ -165,8 +165,20 @@ and A-F or a-f), preceded by a # character (e.g., #FF00FF for magenta)</t>
 arbitrary binary data.</t>
 <t>A <spanx style="emph">STRING MAP</spanx> is a complex XML type with exactly two child elements
 <spanx style="verb">&lt;Key&gt;</spanx> and <spanx style="verb">&lt;Value&gt;</spanx> describing a mapping between a key string and a
-value string.</t>
+value string.  The <spanx style="verb">&lt;Value&gt;</spanx> element MAY have the <spanx style="emph">BOOLEAN</spanx> attribute
+<spanx style="verb">ProtectInMemory</spanx> to indicate that the value should be protected at
+runtime by in-memory encryption.</t>
 </list>
+</t>
+</section>
+
+<section anchor="protected-elements" title="Protected Elements">
+<t>All non-complex XML elements (including elements of the non-complex types
+described in <xref target="basic-data-types"/>) MAY have a <spanx style="emph">BOOLEAN</spanx> <spanx style="verb">Protected</spanx>
+attribute.  If this attribute is set to <spanx style="verb">True</spanx>, the element's string data
+MUST be a <spanx style="emph">BLOB</spanx> of encrypted data which must be decrypted before use.
+The data MUST be encrypted with the KDBX container's inner random
+stream cipher.
 </t>
 </section>
 
@@ -240,7 +252,7 @@ records of deleted objects, whose format is described in <xref target="deleted-o
 </section>
 
 <section anchor="meta-data-section" title="Meta Data Section">
-<t>The <spanx style="verb">&lt;Meta&gt;</spanx> element MAY contain any of the following elements at most once
+<t>The <spanx style="verb">&lt;Meta&gt;</spanx> element can contain any of the following elements at most once
 to describe various database meta data.
 </t>
 <t>
@@ -269,7 +281,7 @@ The username to use as a default when creating a new entry in the database.</t>
 <spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DefaultUserName&gt;</spanx>.</t>
 <t hangText="&lt;MaintenanceHistoryDays&gt;">
 <spanx style="emph">INTEGER</spanx> indicating the maximum age of the oldest history item
-to keep in days.</t>
+to keep in days when performing database maintenance.</t>
 <t hangText="&lt;Color&gt;">
 A <spanx style="emph">COLOR</spanx> that can be used for coloring the program icon or database tab
 inside the password manager application.</t>
@@ -358,13 +370,13 @@ arbitrary number of sub groups and entries.  A detailed description of
 the database structure was given in <xref target="general-database-structure"/>.
 </t>
 <t>A group is represented by a <spanx style="verb">&lt;Group&gt;</spanx> element, which MUST have a <spanx style="verb">&lt;UUID&gt;</spanx>
-child element of type <spanx style="emph">UUID</spanx>, defining the <spanx style="emph">KEY</spanx> of this group.
+child element of type <spanx style="emph">UUID</spanx> defining the <spanx style="emph">KEY</spanx> of this group.
 </t>
 <t>Any <spanx style="verb">&lt;Group&gt;</spanx> element inside another <spanx style="verb">&lt;Group&gt;</spanx> element is a sub group.
 <spanx style="verb">&lt;Entry&gt;</spanx> elements inside a <spanx style="verb">&lt;Group&gt;</spanx> element are child entries of that group
 (see <xref target="entries"/>).
 </t>
-<t>In addition, a group MAY have any of the following elements at most once:
+<t>In addition, a group can have any of the following child elements at most once:
 </t>
 <t>
 <list style="hanging">
@@ -383,7 +395,7 @@ MUST be used instead of the default icon set in <spanx style="verb">&lt;IconID&g
 <t hangText="&lt;Times&gt;">
 A complex XML type containing information about the group's last access,
 modification, or expiry date and time. A detailed description is given in
-<xref target="times-and-expiry"/></t>
+<xref target="times-and-expiry"/>.</t>
 <t hangText="&lt;IsExpanded&gt; (EPH)">
 If a GUI implementation allows the user to expand and collapse sub trees,
 this element MAY contain a <spanx style="emph">BOOLEAN</spanx> indicating whether this group is
@@ -399,7 +411,7 @@ entries and sub groups.  <spanx style="verb">Null</spanx> inherits a definitive 
 parent group.  If this is the root group, <spanx style="verb">Null</spanx> is equivalent to <spanx style="verb">True</spanx>.
 Individual sub groups may override this value.  If a group enables
 Auto-Type, individual entries in this group may still choose to disable it.
-However, disabling Auto-Type at group level disables it for all direct
+However, disabling Auto-Type at group level SHOULD disable it for all direct
 child entries, regardless of their setting.</t>
 <t hangText="&lt;EnableSearching&gt;">
 <spanx style="emph">OPT BOOLEAN</spanx> indicating whether entries in this group should be included
@@ -422,15 +434,186 @@ format is KDBX 3.1 or lower.</t>
 </section>
 
 <section anchor="entries" title="Entries">
+<t>An entry is where the user saves their actual secret data and credentials.
+</t>
+<t>An entry is represented by an <spanx style="verb">&lt;Entry&gt;</spanx> element, which MUST be a child
+of a <spanx style="verb">&lt;Group&gt;</spanx> element.  Like <spanx style="verb">&lt;Group&gt;</spanx>, an <spanx style="verb">&lt;Entry&gt;</spanx> MUST have a <spanx style="verb">&lt;UUID&gt;</spanx>
+child element of type <spanx style="emph">UUID</spanx> defining the <spanx style="emph">KEY</spanx> of this entry.
+</t>
+<t>For storing the actual data, an entry can have an arbitrary number of
+<spanx style="verb">&lt;String&gt;</spanx> elements of type <spanx style="emph">STRING MAP</spanx>.  Besides arbitrary user-defined
+keys, the following keys SHOULD be present and displayed as dedicated
+input fields and display columns:
+</t>
+<t>
+<list style="hanging">
+<t hangText="Title">
+The entry title.</t>
+<t hangText="UserName">
+The username of this entry.</t>
+<t hangText="Password">
+The password of this entry.</t>
+<t hangText="URL">
+A URL to a remote location which this entry is used for.  An implementation
+SHOULD render this as a clickable link that launches a program associated
+with the URL's scheme.  The cmd:// scheme SHOULD execute arbitrary commands.</t>
+<t hangText="Notes">
+Additional notes the user may save with this entry.</t>
+</list>
+</t>
+<t>In addition to <spanx style="verb">&lt;String&gt;</spanx> elements, an entry can also have an arbitrary number
+of<spanx style="verb">&lt;Binary&gt;</spanx> elements.  This element is has a complex XML type defining a
+reference to a file attachment.  The structure of this type is similar to
+<spanx style="emph">STRING MAP</spanx> in that it MUST have an element <spanx style="verb">&lt;Key&gt;</spanx>, setting a key for this
+attachment (usually the file name) and an element <spanx style="verb">&lt;Value&gt;</spanx>.
+</t>
+<t>Though unlike <spanx style="emph">STRING MAP</spanx>, the <spanx style="verb">&lt;Value&gt;</spanx> element MUST <spanx style="emph">either</spanx> have an <spanx style="emph">INTEGER</spanx>
+<spanx style="verb">Ref</spanx> attribute and no content <spanx style="emph">or</spanx> the raw attachment data as <spanx style="emph">BLOB</spanx> and no
+attribute.  There are also no attributes for in-memory encryption.
+</t>
+<t>For KDBX 3.1 or lower, the <spanx style="verb">Ref</spanx> attribute references a <spanx style="verb">&lt;Binary&gt;</spanx> from
+the <spanx style="verb">&lt;Binaries&gt;</spanx> element inside the database's meta data section by its <spanx style="verb">ID</spanx>
+attribute.
+</t>
+<t>For KDBX 4.0 or higher, it references an item from the container's encrypted
+binary inner header by its position.
+</t>
+<t>If the container format is KDBX 4.0 or higher, an entry MAY also have a
+<spanx style="verb">&lt;CustomData&gt;</spanx> element for saving arbitrary plugin data, identical to the one
+that can be set at group level.  See <xref target="groups"/> for a description of this element.
+As for groups, the container format MUST be KDBX 4.0 or higher if this
+element exists.
+</t>
+
+<section anchor="fixed-data" title="Fixed Data">
+<t>Besides arbitrarily many <spanx style="verb">&lt;String&gt;</spanx> and <spanx style="verb">&lt;Binary&gt;</spanx> elements, the following
+<spanx style="emph">fixed-data</spanx> elements can occur at most once:
+</t>
+<t>
+<list style="hanging">
+<t hangText="&lt;IconID&gt;">
+The <spanx style="emph">INTEGER</spanx> identifier of a standard icon to display for this group.
+Standard icons are described in <xref target="standard-icons"/></t>
+<t hangText="&lt;ForegroundColor&gt;">
+A <spanx style="emph">COLOR</spanx> to be used as custom entry text color.</t>
+<t hangText="&lt;BackgroundColor&gt;">
+A <spanx style="emph">COLOR</spanx> to be used as custom entry background color.</t>
+<t hangText="&lt;OverrideURL&gt;">
+An additional URL that overrides the triggered target when the user
+clicks the Link generated from the <spanx style="verb">URL</spanx> string field.</t>
+<t hangText="&lt;Tags&gt;">
+A list of used-defined tags for this entry separated by semicolons <spanx style="verb">;</spanx>.
+Tags allow to classify entries orthogonally to the group hierarchy.</t>
+<t hangText="&lt;Times&gt;">
+A complex XML type containing information about this entry's last access,
+modification, or expiry date and time. A detailed description is given in
+<xref target="times-and-expiry"/>.</t>
+<t hangText="&lt;AutoType&gt;">
+A complex XML type containing information about this entry's Auto-Type
+settings. A detailed description is given in <xref target="autotype-settings"/>.</t>
+<t hangText="&lt;History&gt;">
+A sequence of previous versions of this entry.  History items are
+described in <xref target="entry-history"/>.</t>
+</list>
+</t>
+</section>
+
+<section anchor="autotype-settings" title="Auto-Type Settings">
+<t>An implementation SHOULD try to match window titles for Auto-Type automatically
+with data from an entry and use <spanx style="verb">{USERNAME}{TAB}{PASSWORD}{ENTER}</spanx> as a default
+Auto-Type sequence.  To lower the risk of accidental submission to wrong input
+forms, it MAY also reduce the default sequence to <spanx style="verb">{USERNAME}{TAB}{PASSWORD}</spanx>.
+</t>
+<t>An entry MAY specify additional Auto-Type settings, which override the default
+Auto-Type settings provided by the implementation.  This is done in an
+<spanx style="verb">&lt;AutoType&gt;</spanx> element inside the <spanx style="verb">&lt;Entry&gt;</spanx>.  The following child elements are
+possible and can occur at most once:
+</t>
+<t>
+<list style="hanging">
+<t hangText="&lt;Enabled&gt;">
+<spanx style="emph">BOOLEAN</spanx> indicating whether Auto-Type should be enabled for this entry.
+The default SHOULD be <spanx style="verb">True</spanx>.  If Auto-Type is enabled for the parent group,
+this can be used to override the setting.  On the other hand, if Auto-Type
+is disabled for the parent group, this setting SHOULD have no effect.</t>
+<t hangText="&lt;DataTransferObfuscation&gt;">
+<spanx style="emph">BOOLEAN</spanx> indicating whether an implementation MAY try to obfuscate Auto-Type
+key strokes to make it harder for key loggers to record the full sequence.</t>
+<t hangText="&lt;DefaultSequence&gt;">
+The default Auto-Type sequence to use for this entry (overrides the global
+or group default).</t>
+</list>
+</t>
+<t>Additionally, the user SHOULD be able to add additional window associations to
+an entry.  A window association is a specific Auto-Type setting for a specific
+window.  An entry can hold an arbitrary number of <spanx style="verb">&lt;Association&gt;</spanx> elements,
+one for every individual window association.
+</t>
+<t>An <spanx style="verb">&lt;Association&gt;</spanx> MUST have the following two elements:
+</t>
+<t>
+<list style="hanging">
+<t hangText="&lt;Window&gt;">
+The title of the window to match with this entry.  The string MUST support
+<spanx style="verb">*</spanx> as a wildcard character.</t>
+<t hangText="&lt;KeystrokeSequence&gt;">
+A custom Auto-Type sequence.  If the value is left empty, the sequence
+from <spanx style="verb">&lt;DefaultSequence&gt;</spanx> is used or, if that is empty as well, the group
+or global default.</t>
+</list>
+</t>
+</section>
 
 <section anchor="entry-history" title="Entry History">
+<t>To improve robustness against user credential loss by accidental edits, all
+changes to an entry SHOULD be recorded in an entry's history.
+</t>
+<t>For this, an implementation SHOULD create a copy of an entry (excluding its
+history) and add it to the original entry's <spanx style="verb">&lt;History&gt;</spanx> before applying any
+modifications to the original entry.  This applies to all user-initiated,
+non-ephemeral database changes which would result in an updated KDBX file
+when saved.
+</t>
+<t>A history item SHOULD be created immediately when the user commits a change
+to the database, not only when the updated KDBX file is actually saved to
+disk.
+</t>
+<t>The newest history item MUST be last in the list.  Copying and adding an item
+to the history MUST NOT change any of its elements. This also applies to all
+ephemeral elements.  The history item MUST capture the exact state of the
+original element before modification.
+</t>
+<t>After adding a new history item, an implementation SHOULD ensure that the
+history does not grow larger than the configured limits.
+</t>
+<t>If the new number of history items exceeds the value configured in the
+<spanx style="verb">&lt;HistoryMaxItems&gt;</spanx> setting from the databases meta data, the oldest history
+items SHOULD be deleted until the number of actual history items does not
+exceed this number anymore.
+</t>
+<t>Similarly, if the total size of the history in bytes exceeds
+<spanx style="verb">&lt;HistoryMaxSize&gt;</spanx>, the oldest items SHOULD be deleted, until the total size
+does not exceed this number anymore.  The size of the history is calculated by
+adding the sizes of all entries in the history.
+</t>
+<t>The size of an entry SHOULD be calculated as the sum of its UTF-8 string data
+in bytes, including all <spanx style="verb">&lt;String&gt;</spanx>, <spanx style="verb">&lt;Binary&gt;</spanx>, and <spanx style="verb">&lt;CustomData&gt;</spanx> keys and
+values, Auto-Type <spanx style="verb">&lt;Association&gt;</spanx> window titles and sequences, <spanx style="verb">&lt;Tags&gt;</spanx>,
+<spanx style="verb">&lt;OverrideURL&gt;</spanx> and the remaining fixed data.  For simplicity, the latter
+MAY be estimated as <spanx style="verb">128</spanx>.
+</t>
+<t>The size of <spanx style="verb">&lt;Binary&gt;</spanx> values SHOULD calculated <spanx style="emph">after</spanx> Base64 decoding.
+</t>
+<t>An implementation MAY also provide a manual or automatic database maintenance
+feature, which deletes all history items older than <spanx style="verb">&lt;MaintenanceHistoryDays&gt;</spanx>.
+</t>
 </section>
 </section>
 
 <section anchor="times-and-expiry" title="Times And Expiry">
 <t>Groups and entries (hereafter called <spanx style="emph">items</spanx>) MAY have a <spanx style="verb">&lt;Times&gt;</spanx> element
 recording and configuring various time- and usage-based data.  If present,
-the <spanx style="verb">&lt;Times&gt;</spanx> element MAY have any the following child elements at most once:
+the <spanx style="verb">&lt;Times&gt;</spanx> element can have any the following child elements at most once:
 </t>
 <t>
 <list style="hanging">
@@ -467,6 +650,18 @@ This MAY be updated whenever the parent of an item changes.</t>
 </section>
 
 <section anchor="deleted-objects" title="Deleted Objects">
+<t>When a group or an entry is deleted, an implementation MAY add a note about
+this deletion in <spanx style="verb">&lt;DeletedObjects&gt;</spanx> of the data section.  This is to allow proper
+two-way remote synchronization of databases.
+</t>
+<t>Such a note is a <spanx style="verb">&lt;DeletedObject&gt;</spanx> element, which MUST have a <spanx style="verb">&lt;UUID&gt;</spanx> element
+of type <spanx style="emph">UUID</spanx> (<spanx style="emph">KEY</spanx>) with the UUID of the deleted object and a <spanx style="verb">&lt;DeletionTime&gt;</spanx>
+element of type <spanx style="emph">DATETIME</spanx> recording the date and time this item was deleted.
+</t>
+<t>If an implementation keeps track of deleted groups and entries, it SHOULD also
+provide an automatic or manual maintenance feature to clean up old deleted object
+notes.
+</t>
 </section>
 </section>
 </section>
