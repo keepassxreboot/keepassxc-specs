@@ -92,6 +92,8 @@ KDBX container.
 <t>Conversely, the term 'KDBX' refers to the full container, including
 its encrypted XML payload.
 </t>
+<t>'Element' refers to an individual XML element inside the database.
+</t>
 
 <section anchor="general-database-structure" title="General Database Structure">
 <t>A database comprises two main parts: a <spanx style="emph">meta data section</spanx> and the actual
@@ -115,7 +117,7 @@ is described in <xref target="groups"/>.
 MUST have a single parent group.  The attributes of an entry are
 described in <xref target="entries"/>.
 </t>
-<t>A database MUST have exactly one <spanx style="emph">root group</spanx>, which acts as common
+<t>A database MUST have exactly one <spanx style="emph">root group</spanx>, which acts as a common
 ancestor of all other groups and entries.
 </t>
 </section>
@@ -154,6 +156,8 @@ in front.</t>
 <t>A <spanx style="emph">BOOLEAN</spanx> is represented by the strings <spanx style="verb">True</spanx> and <spanx style="verb">False</spanx>.  The
 alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx>, as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx>, are also
 possible.</t>
+<t>An <spanx style="emph">OPT BOOLEAN</spanx> is the same as a <spanx style="emph">BOOLEAN</spanx> with the additional
+allowed value <spanx style="verb">Null</spanx> (or <spanx style="verb">null</spanx>) which stands for no definite value.</t>
 <t>A <spanx style="emph">DATETIME</spanx> is an XML datetime in ISO 8601 format <xref target="RFC3339"/>.</t>
 <t>A <spanx style="emph">COLOR</spanx> is a six-digit hexadecimal RGB color code (characters 0-9
 and A-F or a-f), preceded by a # character (e.g., #FF00FF for magenta)</t>
@@ -167,13 +171,13 @@ value string.</t>
 </section>
 
 <section anchor="identifiers" title="Identifiers">
-<t>Data records (i.e., groups or entries) inside a database are
+<t>Most resources (e.g., groups and entries) inside a database are
 identified by a <spanx style="emph">UUID</spanx>, which is a globally unique 128-bit (16-byte)
 identifier encoded as a <spanx style="emph">BLOB</spanx>.
 </t>
-<t>An element of type <spanx style="emph">UUID</spanx> either directly defines the UUID of a record
+<t>An element of type <spanx style="emph">UUID</spanx> either directly defines the UUID of a resource
 (indicated by <spanx style="emph">KEY</spanx>) or it is used to represent a reference to another
-record identified by this UUID (indicated by <spanx style="emph">REF</spanx>).  If the element is a
+resource identified by this UUID (indicated by <spanx style="emph">REF</spanx>).  If the element is a
 reference, but the target is undefined or does not exist, the zero UUID
 MUST be used to indicate an invalid reference.  The zero UUID is a 16-tuple
 of <spanx style="verb">0x0</spanx> bytes in Base64 encoding (i.e., <spanx style="verb">AAAAAAAAAAAAAAAAAAAAAA==</spanx>).
@@ -181,20 +185,37 @@ Where allowed, the referencing element MAY also be skipped instead of using
 the zero UUID.
 </t>
 <t>If a <spanx style="emph">UUID</spanx> element is a reference and the UUID is not the zero UUID,
-the referenced record MUST exist.
+the referenced resource MUST exist.
 </t>
 <t>The zero UUID itself MUST NOT be used as a <spanx style="emph">KEY</spanx>.
+</t>
+</section>
+
+<section anchor="trivial-changes" title="Trivial Changes">
+<t>Most data in a database is generated and updated explicitly by the user.
+There exists, however, data that is implicitly generated or updated by
+certain (trivial) user actions (e.g. by selecting an entry or copying a
+password).  Data that is implicitly updated in this way is classified as
+<spanx style="emph">ephemeral data</spanx> and XML elements containing ephemeral data are called
+<spanx style="emph">ephemeral elements</spanx> (indicated by <spanx style="emph">EPH</spanx>).
+</t>
+<t>Changes to <spanx style="emph">EPH</spanx> elements SHOULD NOT mark a database as modified.
+Accordingly, the user SHOULD NOT be asked to save changes before closing a
+database which has only ephemeral changes.  If an implementation saves
+changes automatically without explicit user interaction, ephemeral
+changes SHOULD be silently discarded if no other non-ephemeral
+changes exist.
 </t>
 </section>
 </section>
 
 <section anchor="main-elements" title="Main Elements">
 <t>A KeePass XML database SHOULD start with an XML declaration.  The encoding of
- the XML data MUST be UTF-8 <xref target="RFC3629"/>.
+the XML data MUST be UTF-8 <xref target="RFC3629"/>.
 </t>
 <t>The XML document MUST have a root element named <spanx style="verb">&lt;KeePassFile&gt;</spanx>.  The
- <spanx style="verb">&lt;KeePassFile&gt;</spanx> root element MUST have exactly two child nodes <spanx style="verb">&lt;Meta&gt;</spanx>
- and <spanx style="verb">&lt;Root&gt;</spanx>:
+<spanx style="verb">&lt;KeePassFile&gt;</spanx> root element MUST have exactly two child nodes <spanx style="verb">&lt;Meta&gt;</spanx>
+and <spanx style="verb">&lt;Root&gt;</spanx>:
 </t>
 
 <figure align="center"><artwork align="center">
@@ -297,12 +318,13 @@ of history items no longer exceeds this value.</t>
 An <spanx style="emph">INTEGER</spanx> indicating the maximum history size in bytes. If an entry's
 history exceeds this size, the password manager SHOULD delete the oldest
 history items, until the total history size no longer exceeds this value.</t>
-<t hangText="&lt;LastSelectedGroup&gt; (REF)">
+<t hangText="&lt;LastSelectedGroup&gt; (REF, EPH)">
 <spanx style="emph">UUID</spanx> of the group that was last selected by the user.</t>
-<t hangText="&lt;LastTopVisibleGroup&gt; (REF)">
-<spanx style="emph">UUID</spanx> of the top-most group that is still visible with the user's current
-scroll settings.  GUI implementations MAY use this element to save the
-scroll state of the groups tree.</t>
+<t hangText="&lt;LastTopVisibleGroup&gt; (REF, EPH)">
+<spanx style="emph">UUID</spanx> of the top-most group that is still visible in the user's current
+scroll view.  GUI implementations MAY use this element to save the
+scroll state of the groups tree.  If an implementation decides not to store
+scroll information, this SHOULD point to the root group.</t>
 <t hangText="&lt;Binaries&gt; (KDBX 3.1)">
 A sequence of zero or more <spanx style="verb">&lt;Binary&gt;</spanx> elements containing files attached
 to entries in the database.  Each <spanx style="verb">&lt;Binary&gt;</spanx> element is a <spanx style="emph">BLOB</spanx> containing
@@ -330,6 +352,73 @@ level.</t>
 <section anchor="data-section" title="Data Section">
 
 <section anchor="groups" title="Groups">
+<t>Groups in a database are structured as a tree. There MUST be exactly one
+root group inside the <spanx style="verb">&lt;Root&gt;</spanx> element.  This root group MAY contain an
+arbitrary number of sub groups and entries.  A detailed description of
+the database structure was given in <xref target="general-database-structure"/>.
+</t>
+<t>A group is represented by a <spanx style="verb">&lt;Group&gt;</spanx> element, which MUST have a <spanx style="verb">&lt;UUID&gt;</spanx>
+child element of type <spanx style="emph">UUID</spanx>, defining the <spanx style="emph">KEY</spanx> of this group.
+</t>
+<t>Any <spanx style="verb">&lt;Group&gt;</spanx> element inside another <spanx style="verb">&lt;Group&gt;</spanx> element is a sub group.
+<spanx style="verb">&lt;Entry&gt;</spanx> elements inside a <spanx style="verb">&lt;Group&gt;</spanx> element are child entries of that group
+(see <xref target="entries"/>).
+</t>
+<t>In addition, a group MAY have any of the following elements at most once:
+</t>
+<t>
+<list style="hanging">
+<t hangText="&lt;Name&gt;">
+A user-specified name for this group.</t>
+<t hangText="&lt;Notes&gt;">
+Additional notes which the user may save with this group.</t>
+<t hangText="&lt;IconID&gt;">
+The <spanx style="emph">INTEGER</spanx> identifier of a standard icon to display for this group.
+Standard icons are described in <xref target="standard-icons"/></t>
+<t hangText="&lt;CustomIconUUID&gt; (REF)">
+This element MAY be used to reference to a custom group icon from the
+<spanx style="verb">&lt;CustomIcons&gt;</spanx> element of the database's meta data section.
+If a non-zero UUID is specified, the referenced custom icon
+MUST be used instead of the default icon set in <spanx style="verb">&lt;IconID&gt;</spanx>.</t>
+<t hangText="&lt;Times&gt;">
+A complex XML type containing information about the group's last access,
+modification, or expiry date and time. A detailed description is given in
+<xref target="times-and-expiry"/></t>
+<t hangText="&lt;IsExpanded&gt; (EPH)">
+If a GUI implementation allows the user to expand and collapse sub trees,
+this element MAY contain a <spanx style="emph">BOOLEAN</spanx> indicating whether this group is
+expanded (<spanx style="verb">True</spanx>) or collapsed (<spanx style="verb">False</spanx>).  A collapsed group hides all
+it's child groups when displayed as a tree.</t>
+<t hangText="&lt;DefaultAutoTypeSequence&gt;">
+The default Auto-Type sequence to use for entries and sub groups in this
+group.  This overrides an implementation's default Auto-Type sequence.
+Sub groups or entries may again override this value.</t>
+<t hangText="&lt;EnableAutoType&gt;">
+<spanx style="emph">OPT BOOLEAN</spanx> for enabling or disabling Auto-Type for this group, its
+entries and sub groups.  <spanx style="verb">Null</spanx> inherits a definitive value from the
+parent group.  If this is the root group, <spanx style="verb">Null</spanx> is equivalent to <spanx style="verb">True</spanx>.
+Individual sub groups may override this value.  If a group enables
+Auto-Type, individual entries in this group may still choose to disable it.
+However, disabling Auto-Type at group level disables it for all direct
+child entries, regardless of their setting.</t>
+<t hangText="&lt;EnableSearching&gt;">
+<spanx style="emph">OPT BOOLEAN</spanx> indicating whether entries in this group should be included
+in search results if the user searches the database.</t>
+<t hangText="&lt;LastTopVisibleEntry&gt; (REF, EPH)">
+Similarly to <spanx style="verb">&lt;LastTopVisibleGroup&gt;</spanx> in the database meta section, this
+saves a <spanx style="emph">UUID</spanx> reference to the top-most entry inside this group that
+is still visible inside the user's current scroll view.  GUI
+implementations MAY use this element to save the scroll state of
+individual groups.  If the group has no entries, this reference MUST point
+to the zero UUID.</t>
+<t hangText="&lt;CustomData&gt; (KDBX 4.0)">
+A sequence of zero or more <spanx style="emph">STRING MAP</spanx> <spanx style="verb">&lt;Item&gt;</spanx> elements. <spanx style="verb">&lt;Item&gt;</spanx>
+elements can be used by plugins to store arbitrary string data.  This is
+the same as the <spanx style="verb">&lt;CustomData&gt;</spanx> element from the database meta data section,
+but at group level.  This element MUST NOT be present if the container
+format is KDBX 3.1 or lower.</t>
+</list>
+</t>
 </section>
 
 <section anchor="entries" title="Entries">
@@ -338,9 +427,51 @@ level.</t>
 </section>
 </section>
 
+<section anchor="times-and-expiry" title="Times And Expiry">
+<t>Groups and entries (hereafter called <spanx style="emph">items</spanx>) MAY have a <spanx style="verb">&lt;Times&gt;</spanx> element
+recording and configuring various time- and usage-based data.  If present,
+the <spanx style="verb">&lt;Times&gt;</spanx> element MAY have any the following child elements at most once:
+</t>
+<t>
+<list style="hanging">
+<t hangText="&lt;CreationTime&gt;">
+<spanx style="emph">DATETIME</spanx> when the item was created.</t>
+<t hangText="&lt;LastModificationTime&gt;">
+<spanx style="emph">DATETIME</spanx> when the item was last modified.  If it was newly created,
+this SHOULD be the same as <spanx style="verb">&lt;CreationTime&gt;</spanx>.</t>
+<t hangText="&lt;LastAccessTime&gt; (EPH)">
+<spanx style="emph">DATETIME</spanx> when this item was last accessed.  Any kind of access MAY update
+this element, including data modification and item relocation, but also
+trivial tasks such as viewing an item's data, copying its data to the
+clipboard etc.  If an items was newly created, this SHOULD be the same as
+<spanx style="verb">&lt;CreationTime&gt;</spanx>.</t>
+<t hangText="&lt;ExpiryTime&gt;">
+User-configurable <spanx style="emph">DATETIME</spanx> when this item will expire.  An expired item
+SHOULD be marked in a special and distinguishable way (e.g., with a special
+icon or crossed out), so the user can easily spot expired items.  An
+implementation MAY also choose to hide expired items or display them in a
+special location.</t>
+<t hangText="&lt;Expires&gt;">
+<spanx style="emph">BOOLEAN</spanx> indicating whether this item will expire.  If this is set to <spanx style="verb">False</spanx>,
+<spanx style="verb">&lt;ExpiryTime&gt;</spanx> has no effect.  If this element is missing, a default value
+of <spanx style="verb">False</spanx> is assumed.</t>
+<t hangText="&lt;UsageCount&gt; (EPH)">
+<spanx style="emph">INTEGER</spanx> recording the number of times this item was used or accessed.
+Any kind of usage / access MAY update this element.  These kinds of usage
+SHOULD be the same that also update <spanx style="verb">&lt;LastAccessTime&gt;</spanx>.</t>
+<t hangText="&lt;LocationChanged&gt;">
+<spanx style="emph">DATETIME</spanx> when this item was last re-located inside the group hierarchy.
+This MAY be updated whenever the parent of an item changes.</t>
+</list>
+</t>
+</section>
+
 <section anchor="deleted-objects" title="Deleted Objects">
 </section>
 </section>
+</section>
+
+<section anchor="standard-icons" title="Standard Icons">
 </section>
 
 <section anchor="security-considerations" title="Security Considerations">

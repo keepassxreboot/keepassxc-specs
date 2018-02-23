@@ -42,14 +42,14 @@ Table of Contents
      3.1.  XML Schema  . . . . . . . . . . . . . . . . . . . . . . .   3
        3.1.1.  Basic Data Types  . . . . . . . . . . . . . . . . . .   3
        3.1.2.  Identifiers . . . . . . . . . . . . . . . . . . . . .   4
-     3.2.  Main Elements . . . . . . . . . . . . . . . . . . . . . .   4
+       3.1.3.  Trivial Changes . . . . . . . . . . . . . . . . . . .   4
+     3.2.  Main Elements . . . . . . . . . . . . . . . . . . . . . .   5
      3.3.  Meta Data Section . . . . . . . . . . . . . . . . . . . .   5
      3.4.  Data Section  . . . . . . . . . . . . . . . . . . . . . .   8
        3.4.1.  Groups  . . . . . . . . . . . . . . . . . . . . . . .   8
-       3.4.2.  Entries . . . . . . . . . . . . . . . . . . . . . . .   8
-       3.4.3.  Deleted Objects . . . . . . . . . . . . . . . . . . .   8
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
-   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
+       3.4.2.  Entries . . . . . . . . . . . . . . . . . . . . . . .   9
+       3.4.3.  Times And Expiry  . . . . . . . . . . . . . . . . . .   9
+       3.4.4.  Deleted Objects . . . . . . . . . . . . . . . . . . .  10
 
 
 
@@ -58,9 +58,12 @@ Bevendorff               Expires August 23, 2018                [Page 1]
                               KeePass2 XML                 February 2018
 
 
-     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
-     5.2.  Informative References  . . . . . . . . . . . . . . . . .   9
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   4.  Standard Icons  . . . . . . . . . . . . . . . . . . . . . . .  10
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  11
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .  11
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  12
 
 1.  Introduction
 
@@ -90,6 +93,8 @@ Bevendorff               Expires August 23, 2018                [Page 1]
    Conversely, the term 'KDBX' refers to the full container, including
    its encrypted XML payload.
 
+   'Element' refers to an individual XML element inside the database.
+
 2.1.  General Database Structure
 
    A database comprises two main parts: a _meta data section_ and the
@@ -101,11 +106,6 @@ Bevendorff               Expires August 23, 2018                [Page 1]
    time of the last database title change), and additional global
    resources (e.g., custom icons).
 
-   The data section contains the actual user data as a tree structure of
-   _groups_ and _entries_.
-
-   A _group_ is an element with various attributes containing zero or
-   more _entries_.  A group can also contain zero or more sub groups,
 
 
 
@@ -114,6 +114,11 @@ Bevendorff               Expires August 23, 2018                [Page 2]
                               KeePass2 XML                 February 2018
 
 
+   The data section contains the actual user data as a tree structure of
+   _groups_ and _entries_.
+
+   A _group_ is an element with various attributes containing zero or
+   more _entries_.  A group can also contain zero or more sub groups,
    which can again contain groups and entries.  The format of a group is
    described in Section 3.4.1.
 
@@ -121,7 +126,7 @@ Bevendorff               Expires August 23, 2018                [Page 2]
    entry MUST have a single parent group.  The attributes of an entry
    are described in Section 3.4.2.
 
-   A database MUST have exactly one _root group_, which acts as common
+   A database MUST have exactly one _root group_, which acts as a common
    ancestor of all other groups and entries.
 
 3.  XML Format Description
@@ -158,17 +163,18 @@ Bevendorff               Expires August 23, 2018                [Page 2]
       alternative forms "true" and "false", as well as "1" and "0", are
       also possible.
 
-   o  A _DATETIME_ is an XML datetime in ISO 8601 format [RFC3339].
-
-
-
-
 
 
 Bevendorff               Expires August 23, 2018                [Page 3]
 
                               KeePass2 XML                 February 2018
 
+
+   o  An _OPT BOOLEAN_ is the same as a _BOOLEAN_ with the additional
+      allowed value "Null" (or "null") which stands for no definite
+      value.
+
+   o  A _DATETIME_ is an XML datetime in ISO 8601 format [RFC3339].
 
    o  A _COLOR_ is a six-digit hexadecimal RGB color code (characters
       0-9 and A-F or a-f), preceded by a # character (e.g., #FF00FF for
@@ -183,23 +189,47 @@ Bevendorff               Expires August 23, 2018                [Page 3]
 
 3.1.2.  Identifiers
 
-   Data records (i.e., groups or entries) inside a database are
+   Most resources (e.g., groups and entries) inside a database are
    identified by a _UUID_, which is a globally unique 128-bit (16-byte)
    identifier encoded as a _BLOB_.
 
    An element of type _UUID_ either directly defines the UUID of a
-   record (indicated by _KEY_) or it is used to represent a reference to
-   another record identified by this UUID (indicated by _REF_).  If the
-   element is a reference, but the target is undefined or does not
+   resource (indicated by _KEY_) or it is used to represent a reference
+   to another resource identified by this UUID (indicated by _REF_).  If
+   the element is a reference, but the target is undefined or does not
    exist, the zero UUID MUST be used to indicate an invalid reference.
    The zero UUID is a 16-tuple of "0x0" bytes in Base64 encoding (i.e.,
    "AAAAAAAAAAAAAAAAAAAAAA==").  Where allowed, the referencing element
    MAY also be skipped instead of using the zero UUID.
 
    If a _UUID_ element is a reference and the UUID is not the zero UUID,
-   the referenced record MUST exist.
+   the referenced resource MUST exist.
 
    The zero UUID itself MUST NOT be used as a _KEY_.
+
+3.1.3.  Trivial Changes
+
+   Most data in a database is generated and updated explicitly by the
+   user.  There exists, however, data that is implicitly generated or
+   updated by certain (trivial) user actions (e.g. by selecting an entry
+   or copying a password).  Data that is implicitly updated in this way
+   is classified as _ephemeral data_ and XML elements containing
+   ephemeral data are called _ephemeral elements_ (indicated by _EPH_).
+
+   Changes to _EPH_ elements SHOULD NOT mark a database as modified.
+   Accordingly, the user SHOULD NOT be asked to save changes before
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 4]
+
+                              KeePass2 XML                 February 2018
+
+
+   closing a database which has only ephemeral changes.  If an
+   implementation saves changes automatically without explicit user
+   interaction, ephemeral changes SHOULD be silently discarded if no
+   other non-ephemeral changes exist.
 
 3.2.  Main Elements
 
@@ -209,22 +239,6 @@ Bevendorff               Expires August 23, 2018                [Page 3]
    The XML document MUST have a root element named "<KeePassFile>".  The
    "<KeePassFile>" root element MUST have exactly two child nodes
    "<Meta>" and "<Root>":
-
-
-
-
-
-
-
-
-
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 4]
-
-                              KeePass2 XML                 February 2018
-
 
           <?xml version="1.0" encoding="utf-8" standalone="yes"?>
           <KeePassFile>
@@ -243,7 +257,7 @@ Bevendorff               Expires August 23, 2018                [Page 4]
 
    Besides the database's root group, "<Root>" MAY also contain
    historical records of deleted objects, whose format is described in
-   Section 3.4.3.
+   Section 3.4.4.
 
 3.3.  Meta Data Section
 
@@ -261,6 +275,13 @@ Bevendorff               Expires August 23, 2018                [Page 4]
 
    <Generator>  The name of the program that generated the KDBX file.
 
+
+
+Bevendorff               Expires August 23, 2018                [Page 5]
+
+                              KeePass2 XML                 February 2018
+
+
    <DatabaseName>  An optional name for the database.
 
    <DatabaseNameChanged>  _DATETIME_ of the last change of
@@ -273,14 +294,6 @@ Bevendorff               Expires August 23, 2018                [Page 4]
 
    <DefaultUserName>  The username to use as a default when creating a
       new entry in the database.
-
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 5]
-
-                              KeePass2 XML                 February 2018
-
 
    <DefaultUserNameChanged>  _DATETIME_ of the last change of
       "<DefaultUserName>".
@@ -317,6 +330,14 @@ Bevendorff               Expires August 23, 2018                [Page 5]
    <CustomIcons>  A complex XML type containing a sequence of zero or
       more custom icons, which can be used for visually customizing
       groups and entries (described in Section 3.4.1 and Section 3.4.2).
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 6]
+
+                              KeePass2 XML                 February 2018
+
+
       An icon is an "<Icon>" element, which has exactly two children
       "<UUID>" (a _UUID_) and "<Data>".  "<Data>" contains the icon
       image data as _BLOB_.
@@ -329,14 +350,6 @@ Bevendorff               Expires August 23, 2018                [Page 5]
 
    <RecycleBinChanged>  _DATETIME_ of the last change to the recycle
       bin.
-
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 6]
-
-                              KeePass2 XML                 February 2018
-
 
    <EntryTemplatesGroup> (REF)  The _UUID_ of the group that contains
       templates for the creation of new entries.
@@ -356,13 +369,14 @@ Bevendorff               Expires August 23, 2018                [Page 6]
       manager SHOULD delete the oldest history items, until the total
       history size no longer exceeds this value.
 
-   <LastSelectedGroup> (REF)  _UUID_ of the group that was last selected
-      by the user.
+   <LastSelectedGroup> (REF, EPH)  _UUID_ of the group that was last
+      selected by the user.
 
-   <LastTopVisibleGroup> (REF)  _UUID_ of the top-most group that is
-      still visible with the user's current scroll settings.  GUI
+   <LastTopVisibleGroup> (REF, EPH)  _UUID_ of the top-most group that
+      is still visible in the user's current scroll view.  GUI
       implementations MAY use this element to save the scroll state of
-      the groups tree.
+      the groups tree.  If an implementation decides not to store scroll
+      information, this SHOULD point to the root group.
 
    <Binaries> (KDBX 3.1)  A sequence of zero or more "<Binary>" elements
       containing files attached to entries in the database.  Each
@@ -371,6 +385,15 @@ Bevendorff               Expires August 23, 2018                [Page 6]
       _INTEGER_ identifying the _BLOB_ data and a _BOOLEAN_ attribute
       "Compressed", indicating whether the _BLOB_ data is Gzip-
       compressed [RFC1952].
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 7]
+
+                              KeePass2 XML                 February 2018
+
+
       A database SHOULD NOT contain two "<Binary>" elements with the
       same _BLOB_ data.
       This element is only specified for KDBX 3.1 and lower.  KDBX 4.0
@@ -382,43 +405,171 @@ Bevendorff               Expires August 23, 2018                [Page 6]
       elements. "<Item>" elements can be used by plugins to store
       arbitrary string data at database level.
 
+3.4.  Data Section
+
+3.4.1.  Groups
+
+   Groups in a database are structured as a tree.  There MUST be exactly
+   one root group inside the "<Root>" element.  This root group MAY
+   contain an arbitrary number of sub groups and entries.  A detailed
+   description of the database structure was given in Section 2.1.
+
+   A group is represented by a "<Group>" element, which MUST have a
+   "<UUID>" child element of type _UUID_, defining the _KEY_ of this
+   group.
+
+   Any "<Group>" element inside another "<Group>" element is a sub
+   group.  "<Entry>" elements inside a "<Group>" element are child
+   entries of that group (see Section 3.4.2).
+
+   In addition, a group MAY have any of the following elements at most
+   once:
+
+   <Name>  A user-specified name for this group.
+
+   <Notes>  Additional notes which the user may save with this group.
+
+   <IconID>  The _INTEGER_ identifier of a standard icon to display for
+      this group.  Standard icons are described in Section 4
+
+   <CustomIconUUID> (REF)  This element MAY be used to reference to a
+      custom group icon from the "<CustomIcons>" element of the
+      database's meta data section.  If a non-zero UUID is specified,
+      the referenced custom icon MUST be used instead of the default
+      icon set in "<IconID>".
+
+   <Times>  A complex XML type containing information about the group's
+      last access, modification, or expiry date and time.  A detailed
+      description is given in Section 3.4.3
 
 
 
 
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 7]
+Bevendorff               Expires August 23, 2018                [Page 8]
 
                               KeePass2 XML                 February 2018
 
 
-3.4.  Data Section
+   <IsExpanded> (EPH)  If a GUI implementation allows the user to expand
+      and collapse sub trees, this element MAY contain a _BOOLEAN_
+      indicating whether this group is expanded ("True") or collapsed
+      ("False").  A collapsed group hides all it's child groups when
+      displayed as a tree.
 
-3.4.1.  Groups
+   <DefaultAutoTypeSequence>  The default Auto-Type sequence to use for
+      entries and sub groups in this group.  This overrides an
+      implementation's default Auto-Type sequence.  Sub groups or
+      entries may again override this value.
+
+   <EnableAutoType>  _OPT BOOLEAN_ for enabling or disabling Auto-Type
+      for this group, its entries and sub groups.  "Null" inherits a
+      definitive value from the parent group.  If this is the root
+      group, "Null" is equivalent to "True".  Individual sub groups may
+      override this value.  If a group enables Auto-Type, individual
+      entries in this group may still choose to disable it.  However,
+      disabling Auto-Type at group level disables it for all direct
+      child entries, regardless of their setting.
+
+   <EnableSearching>  _OPT BOOLEAN_ indicating whether entries in this
+      group should be included in search results if the user searches
+      the database.
+
+   <LastTopVisibleEntry> (REF, EPH)  Similarly to
+      "<LastTopVisibleGroup>" in the database meta section, this saves a
+      _UUID_ reference to the top-most entry inside this group that is
+      still visible inside the user's current scroll view.  GUI
+      implementations MAY use this element to save the scroll state of
+      individual groups.  If the group has no entries, this reference
+      MUST point to the zero UUID.
+
+   <CustomData> (KDBX 4.0)  A sequence of zero or more _STRING MAP_
+      "<Item>" elements. "<Item>" elements can be used by plugins to
+      store arbitrary string data.  This is the same as the
+      "<CustomData>" element from the database meta data section, but at
+      group level.  This element MUST NOT be present if the container
+      format is KDBX 3.1 or lower.
 
 3.4.2.  Entries
 
 3.4.2.1.  Entry History
 
-3.4.3.  Deleted Objects
+3.4.3.  Times And Expiry
 
-4.  Security Considerations
+   Groups and entries (hereafter called _items_) MAY have a "<Times>"
+   element recording and configuring various time- and usage-based data.
+
+
+
+
+Bevendorff               Expires August 23, 2018                [Page 9]
+
+                              KeePass2 XML                 February 2018
+
+
+   If present, the "<Times>" element MAY have any the following child
+   elements at most once:
+
+   <CreationTime>  _DATETIME_ when the item was created.
+
+   <LastModificationTime>  _DATETIME_ when the item was last modified.
+      If it was newly created, this SHOULD be the same as
+      "<CreationTime>".
+
+   <LastAccessTime> (EPH)  _DATETIME_ when this item was last accessed.
+      Any kind of access MAY update this element, including data
+      modification and item relocation, but also trivial tasks such as
+      viewing an item's data, copying its data to the clipboard etc.  If
+      an items was newly created, this SHOULD be the same as
+      "<CreationTime>".
+
+   <ExpiryTime>  User-configurable _DATETIME_ when this item will
+      expire.  An expired item SHOULD be marked in a special and
+      distinguishable way (e.g., with a special icon or crossed out), so
+      the user can easily spot expired items.  An implementation MAY
+      also choose to hide expired items or display them in a special
+      location.
+
+   <Expires>  _BOOLEAN_ indicating whether this item will expire.  If
+      this is set to "False", "<ExpiryTime>" has no effect.  If this
+      element is missing, a default value of "False" is assumed.
+
+   <UsageCount> (EPH)  _INTEGER_ recording the number of times this item
+      was used or accessed.  Any kind of usage / access MAY update this
+      element.  These kinds of usage SHOULD be the same that also update
+      "<LastAccessTime>".
+
+   <LocationChanged>  _DATETIME_ when this item was last re-located
+      inside the group hierarchy.  This MAY be updated whenever the
+      parent of an item changes.
+
+3.4.4.  Deleted Objects
+
+4.  Standard Icons
+
+5.  Security Considerations
 
    KDBX is an encrypted container format.  The security of the XML
    payload described in this document depends on the strength of the
    cipher and passphrase / key file used for encrypting the
    encapsulating KDBX container.
 
+
+
+
+
+Bevendorff               Expires August 23, 2018               [Page 10]
+
+                              KeePass2 XML                 February 2018
+
+
    In addition, all security considerations for [XML] apply as well,
    including the use of recursive XML entities, which can consume an
    arbitrarily large amount of memory on the user's system during
    parsing.
 
-5.  References
+6.  References
 
-5.1.  Normative References
+6.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -442,20 +593,12 @@ Bevendorff               Expires August 23, 2018                [Page 7]
               Edition)", November 2008, <https://www.w3.org/TR/2008/REC-
               xml-20081126/>.
 
-
-
-
-Bevendorff               Expires August 23, 2018                [Page 8]
-
-                              KeePass2 XML                 February 2018
-
-
    [XMLSchema]
               Thompson, H., Beech, D., Maloney, M., and N. Mendelsohn,
               "XML Schema Part 1: Structures Second Edition", October
               2004, <https://www.w3.org/TR/xmlschema-1/>.
 
-5.2.  Informative References
+6.2.  Informative References
 
    [RFC1952]  Deutsch, P., "GZIP file format specification version 4.3",
               RFC 1952, DOI 10.17487/RFC1952, May 1996,
@@ -464,6 +607,16 @@ Bevendorff               Expires August 23, 2018                [Page 8]
    [RFC4634]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
               (SHA and HMAC-SHA)", RFC 4634, DOI 10.17487/RFC4634, July
               2006, <https://www.rfc-editor.org/info/rfc4634>.
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018               [Page 11]
+
+                              KeePass2 XML                 February 2018
+
 
 Author's Address
 
@@ -501,4 +654,19 @@ Author's Address
 
 
 
-Bevendorff               Expires August 23, 2018                [Page 9]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bevendorff               Expires August 23, 2018               [Page 12]

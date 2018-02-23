@@ -73,6 +73,8 @@ KDBX container.
 Conversely, the term 'KDBX' refers to the full container, including
 its encrypted XML payload.
 
+'Element' refers to an individual XML element inside the database.
+
 ## General Database Structure
 
 A database comprises two main parts: a *meta data section* and the actual
@@ -96,7 +98,7 @@ An *entry* is a set of user credentials and other related data. An entry
 MUST have a single parent group.  The attributes of an entry are
 described in (#entries).
 
-A database MUST have exactly one *root group*, which acts as common
+A database MUST have exactly one *root group*, which acts as a common
 ancestor of all other groups and entries.
 
 # XML Format Description
@@ -133,6 +135,9 @@ in front.
 alternative forms `true` and `false`, as well as `1` and `0`, are also
 possible.
 
+- An *OPT BOOLEAN* is the same as a *BOOLEAN* with the additional
+allowed value `Null` (or `null`) which stands for no definite value.
+
 - A *DATETIME* is an XML datetime in ISO 8601 format [@!RFC3339].
 
 - A *COLOR* is a six-digit hexadecimal RGB color code (characters 0-9
@@ -147,13 +152,13 @@ value string.
 
 ### Identifiers
 
-Data records (i.e., groups or entries) inside a database are
+Most resources (e.g., groups and entries) inside a database are
 identified by a *UUID*, which is a globally unique 128-bit (16-byte)
 identifier encoded as a *BLOB*.
 
-An element of type *UUID* either directly defines the UUID of a record
+An element of type *UUID* either directly defines the UUID of a resource
 (indicated by *KEY*) or it is used to represent a reference to another
-record identified by this UUID (indicated by *REF*).  If the element is a
+resource identified by this UUID (indicated by *REF*).  If the element is a
 reference, but the target is undefined or does not exist, the zero UUID
 MUST be used to indicate an invalid reference.  The zero UUID is a 16-tuple
 of `0x0` bytes in Base64 encoding (i.e., `AAAAAAAAAAAAAAAAAAAAAA==`).
@@ -161,18 +166,34 @@ Where allowed, the referencing element MAY also be skipped instead of using
 the zero UUID.
 
 If a *UUID* element is a reference and the UUID is not the zero UUID,
-the referenced record MUST exist.
+the referenced resource MUST exist.
 
 The zero UUID itself MUST NOT be used as a *KEY*.
+
+### Trivial Changes
+
+Most data in a database is generated and updated explicitly by the user.
+There exists, however, data that is implicitly generated or updated by
+certain (trivial) user actions (e.g. by selecting an entry or copying a
+password).  Data that is implicitly updated in this way is classified as
+*ephemeral data* and XML elements containing ephemeral data are called
+*ephemeral elements* (indicated by *EPH*).
+
+Changes to *EPH* elements SHOULD NOT mark a database as modified.
+Accordingly, the user SHOULD NOT be asked to save changes before closing a
+database which has only ephemeral changes.  If an implementation saves
+changes automatically without explicit user interaction, ephemeral
+changes SHOULD be silently discarded if no other non-ephemeral
+changes exist.
 
 ## Main Elements
 
 A KeePass XML database SHOULD start with an XML declaration.  The encoding of
- the XML data MUST be UTF-8 [@!RFC3629].
- 
- The XML document MUST have a root element named `<KeePassFile>`.  The
- `<KeePassFile>` root element MUST have exactly two child nodes `<Meta>`
- and `<Root>`:
+the XML data MUST be UTF-8 [@!RFC3629].
+
+The XML document MUST have a root element named `<KeePassFile>`.  The
+`<KeePassFile>` root element MUST have exactly two child nodes `<Meta>`
+and `<Root>`:
 
 ~~~
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -296,13 +317,14 @@ to describe various database meta data.
     history exceeds this size, the password manager SHOULD delete the oldest
     history items, until the total history size no longer exceeds this value.
 
-`<LastSelectedGroup>` (*REF*)
+`<LastSelectedGroup>` (*REF*, *EPH*)
 :   *UUID* of the group that was last selected by the user.
 
-`<LastTopVisibleGroup>` (*REF*)
-:   *UUID* of the top-most group that is still visible with the user's current
-    scroll settings.  GUI implementations MAY use this element to save the
-    scroll state of the groups tree.
+`<LastTopVisibleGroup>` (*REF*, *EPH*)
+:   *UUID* of the top-most group that is still visible in the user's current
+    scroll view.  GUI implementations MAY use this element to save the
+    scroll state of the groups tree.  If an implementation decides not to store
+    scroll information, this SHOULD point to the root group.
 
 `<Binaries>` (KDBX 3.1)
 :   A sequence of zero or more `<Binary>` elements containing files attached
@@ -328,11 +350,128 @@ to describe various database meta data.
 
 ### Groups
 
+Groups in a database are structured as a tree. There MUST be exactly one
+root group inside the `<Root>` element.  This root group MAY contain an
+arbitrary number of sub groups and entries.  A detailed description of
+the database structure was given in (#general-database-structure).
+
+A group is represented by a `<Group>` element, which MUST have a `<UUID>`
+child element of type *UUID*, defining the *KEY* of this group.
+
+Any `<Group>` element inside another `<Group>` element is a sub group.
+`<Entry>` elements inside a `<Group>` element are child entries of that group
+(see (#entries)).
+
+In addition, a group MAY have any of the following elements at most once:
+
+`<Name>`
+:   A user-specified name for this group.
+
+`<Notes>`
+:   Additional notes which the user may save with this group.
+
+`<IconID>`
+:   The *INTEGER* identifier of a standard icon to display for this group.
+    Standard icons are described in (#standard-icons)
+
+`<CustomIconUUID>` (*REF*)
+:   This element MAY be used to reference to a custom group icon from the
+    `<CustomIcons>` element of the database's meta data section.
+    If a non-zero UUID is specified, the referenced custom icon
+    MUST be used instead of the default icon set in `<IconID>`.
+
+`<Times>`
+:   A complex XML type containing information about the group's last access,
+    modification, or expiry date and time. A detailed description is given in
+    (#times-and-expiry)
+
+`<IsExpanded>` (*EPH*)
+:   If a GUI implementation allows the user to expand and collapse sub trees,
+    this element MAY contain a *BOOLEAN* indicating whether this group is
+    expanded (`True`) or collapsed (`False`).  A collapsed group hides all
+    it's child groups when displayed as a tree.
+
+`<DefaultAutoTypeSequence>`
+:   The default Auto-Type sequence to use for entries and sub groups in this
+    group.  This overrides an implementation's default Auto-Type sequence.
+    Sub groups or entries may again override this value.
+
+`<EnableAutoType>`
+:   *OPT BOOLEAN* for enabling or disabling Auto-Type for this group, its
+    entries and sub groups.  `Null` inherits a definitive value from the
+    parent group.  If this is the root group, `Null` is equivalent to `True`.
+    Individual sub groups may override this value.  If a group enables
+    Auto-Type, individual entries in this group may still choose to disable it.
+    However, disabling Auto-Type at group level disables it for all direct
+    child entries, regardless of their setting.
+
+`<EnableSearching>`
+:   *OPT BOOLEAN* indicating whether entries in this group should be included
+    in search results if the user searches the database.
+
+`<LastTopVisibleEntry>` (*REF*, *EPH*)
+:   Similarly to `<LastTopVisibleGroup>` in the database meta section, this
+    saves a *UUID* reference to the top-most entry inside this group that
+    is still visible inside the user's current scroll view.  GUI
+    implementations MAY use this element to save the scroll state of
+    individual groups.  If the group has no entries, this reference MUST point
+    to the zero UUID.
+
+`<CustomData>` (KDBX 4.0)
+:   A sequence of zero or more *STRING MAP* `<Item>` elements. `<Item>`
+    elements can be used by plugins to store arbitrary string data.  This is
+    the same as the `<CustomData>` element from the database meta data section,
+    but at group level.  This element MUST NOT be present if the container
+    format is KDBX 3.1 or lower.
+
 ### Entries
 
 #### Entry History
 
+### Times And Expiry
+
+Groups and entries (hereafter called *items*) MAY have a `<Times>` element
+recording and configuring various time- and usage-based data.  If present,
+the `<Times>` element MAY have any the following child elements at most once:
+
+`<CreationTime>`
+:   *DATETIME* when the item was created.
+
+`<LastModificationTime>`
+:   *DATETIME* when the item was last modified.  If it was newly created,
+    this SHOULD be the same as `<CreationTime>`.
+
+`<LastAccessTime>` (*EPH*)
+:   *DATETIME* when this item was last accessed.  Any kind of access MAY update
+    this element, including data modification and item relocation, but also
+    trivial tasks such as viewing an item's data, copying its data to the
+    clipboard etc.  If an items was newly created, this SHOULD be the same as
+    `<CreationTime>`.
+
+`<ExpiryTime>`
+:   User-configurable *DATETIME* when this item will expire.  An expired item
+    SHOULD be marked in a special and distinguishable way (e.g., with a special
+    icon or crossed out), so the user can easily spot expired items.  An
+    implementation MAY also choose to hide expired items or display them in a
+    special location.
+
+`<Expires>`
+:   *BOOLEAN* indicating whether this item will expire.  If this is set to `False`,
+    `<ExpiryTime>` has no effect.  If this element is missing, a default value
+    of `False` is assumed.
+
+`<UsageCount>` (*EPH*)
+:   *INTEGER* recording the number of times this item was used or accessed.
+    Any kind of usage / access MAY update this element.  These kinds of usage
+    SHOULD be the same that also update `<LastAccessTime>`.
+
+`<LocationChanged>`
+:   *DATETIME* when this item was last re-located inside the group hierarchy.
+    This MAY be updated whenever the parent of an item changes.
+
 ### Deleted Objects
+
+# Standard Icons
 
 # Security Considerations
 
