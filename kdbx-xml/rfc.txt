@@ -231,14 +231,14 @@ Bevendorff               Expires August 23, 2018                [Page 4]
    The "<Meta>" element MAY contain any of the following elements at
    most once to describe various database meta data.
 
-   <HeaderHash>  The SHA-256 [RFC4634] hash of the KDBX header data as
-      _BLOB_.  This element is only useful for KDBX 3.1 or lower, but
-      MAY also be present in KDBX 4.0 or higher.
+   <HeaderHash> (KDBX 3.1)  The SHA-256 [RFC4634] hash of the KDBX
+      header data as _BLOB_.  This element is only useful for KDBX 3.1
+      or lower, but MAY also be present in KDBX 4.0 or higher.
 
-   <SettingsChanged>  _DATETIME_ of the last change of database meta
-      data or KDBX container settings.  This element is only specified
-      for KDBX containers *version 4.0 or higher* and MUST NOT be
-      present in KDBX 3.1 or lower.
+   <SettingsChanged> (KDBX 4.0)  _DATETIME_ of the last change of
+      database meta data or KDBX container settings.  This element is
+      only specified for KDBX containers *version 4.0 or higher* and
+      MUST NOT be present in KDBX 3.1 or lower.
 
    <Generator>  The name of the program that generated the KDBX file.
 
@@ -341,14 +341,17 @@ Bevendorff               Expires August 23, 2018                [Page 6]
    <LastTopVisibleGroup>  _UUID_ of the last 'top' item.  This seems to
       always be the root group of the database.
 
-   <Binaries>  A sequence of zero or more "<Binary>" elements containing
-      files attached to entries in the database.  Each "<Binary>"
-      element is a _BLOB_ containing the file's contents. "<Binary>"
-      elements MUST have an "ID" attribute, which is a unique _INTEGER_
-      identifying the _BLOB_ data and a _BOOLEAN_ attribute
+   <Binaries> (KDBX 3.1)  A sequence of zero or more "<Binary>" elements
+      containing files attached to entries in the database.  Each
+      "<Binary>" element is a _BLOB_ containing the file's contents.
+      "<Binary>" elements MUST have an "ID" attribute, which is a unique
+      _INTEGER_ identifying the _BLOB_ data and a _BOOLEAN_ attribute
       "Compressed", indicating whether the _BLOB_ data is Gzip-
       compressed [RFC1952].  A database SHOULD NOT contain two
-      "<Binary>" elements with the same _BLOB_ data.
+      "<Binary>" elements with the same _BLOB_ data.  This element is
+      only specified for KDBX 3.1 and lower.  KDBX 4.0 stores files in
+      its encrypted binary inner header, so this element MUST NOT be
+      present if the container format is version 4.0 or higher.
 
    <CustomData>  A sequence of zero or more _STRING MAP_ "<Item>"
       elements. "<Item>" elements can be used by plugins to store
@@ -380,10 +383,7 @@ Bevendorff               Expires August 23, 2018                [Page 6]
 
 5.1.  Normative References
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+
 
 
 
@@ -393,6 +393,11 @@ Bevendorff               Expires August 23, 2018                [Page 7]
 
                               KeePass2 XML                 February 2018
 
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC3339]  Klyne, G. and C. Newman, "Date and Time on the Internet:
               Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
@@ -430,11 +435,6 @@ Author's Address
 
    Janek Bevendorff
    KeePassXC Team
-
-
-
-
-
 
 
 

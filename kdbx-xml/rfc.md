@@ -130,12 +130,13 @@ characters in the range 0 to 9.  *INTEGERs* can have a negative sign `-`
 in front.
 
 - A *BOOLEAN* is represented by the strings `True` and `False`.  The
-alternative forms `true` and `false`, as well as `1` and `0`, are also possible.
+alternative forms `true` and `false`, as well as `1` and `0`, are also
+possible.
 
 - A *DATETIME* is an XML datetime in ISO 8601 format [@!RFC3339].
 
-- A *COLOR* is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or
-a-f), preceded by a \# character (e.g., \#FF00FF for magenta)
+- A *COLOR* is a six-digit hexadecimal RGB color code (characters 0-9
+and A-F or a-f), preceded by a \# character (e.g., \#FF00FF for magenta)
 
 - A *BLOB* is a Base64-encoded [@!RFC4648] string representation of
 arbitrary binary data.
@@ -146,8 +147,8 @@ value string.
 
 ### Identifiers
 
-Unique resources inside the database are identified by a *UUID*, which is a globally
-unique 128-bit (16-byte) identifier. *UUIDs* are encoded as *BLOBs*.
+Unique resources inside the database are identified by a *UUID*, which is a
+globally unique 128-bit (16-byte) identifier. *UUIDs* are encoded as *BLOBs*.
 
 ## Main Elements
 
@@ -183,14 +184,15 @@ records of deleted objects, whose format is described in (#deleted-objects).
 The `<Meta>` element MAY contain any of the following elements at most once
 to describe various database meta data.
 
-`<HeaderHash>`
-:   The SHA-256 [@RFC4634] hash of the KDBX header data as *BLOB*.  This element is
-only useful for KDBX 3.1 or lower, but MAY also be present in KDBX 4.0 or higher.
+`<HeaderHash>` (KDBX 3.1)
+:   The SHA-256 [@RFC4634] hash of the KDBX header data as *BLOB*.  This
+    element is only useful for KDBX 3.1 or lower, but MAY also be present
+    in KDBX 4.0 or higher.
 
-`<SettingsChanged>`
+`<SettingsChanged>` (KDBX 4.0)
 :   *DATETIME* of the last change of database meta data or KDBX container
-settings.  This element is only specified for KDBX containers **version 4.0
-or higher** and MUST NOT be present in KDBX 3.1 or lower.
+    settings.  This element is only specified for KDBX containers **version 4.0
+    or higher** and MUST NOT be present in KDBX 3.1 or lower.
 
 `<Generator>`
 :   The name of the program that generated the KDBX file.
@@ -208,48 +210,48 @@ or higher** and MUST NOT be present in KDBX 3.1 or lower.
 :   *DATETIME* of the last change of `<DatabaseDescription>`.
 
 `<DefaultUserName>`
-:   The username to use as a default when creating a new entry in the
-database.
+:   The username to use as a default when creating a new entry in the database.
 
 `<DefaultUserNameChanged>`
 :   *DATETIME* of the last change of `<DefaultUserName>`.
 
 `<MaintenanceHistoryDays>`
 :   *INTEGER* indicating the maximum age of the oldest history item
-to keep in days.
+    to keep in days.
 
 `<Color>`
 :   A *COLOR* that can be used for coloring the program icon or database tab
-inside the password manager application.
+    inside the password manager application.
 
 `<MasterKeyChanged>`
 :   *DATETIME* of the last change of the database's master key.
 
 `<MasterKeyChangeRec>`
 :   *INTEGER* indicating the number of days after which the password manager
-SHOULD recommend changing the database's master key (-1 means 'never')
+    SHOULD recommend changing the database's master key (-1 means 'never')
 
 `<MasterKeyChangeForce>`
 :   *INTEGER* indicating the number of days after which the password manager
-SHOULD force changing the database's master key (-1 means 'never')
+    SHOULD force changing the database's master key (-1 means 'never')
 
 `<MasterKeyChangeForceOnce>`
 :   *BOOLEAN* indicating that the password manager SHOULD force changing the
-database's master key next time the database is opened.  This element SHOULD
-be removed or set to 'False' once the master key has been changed.
+    database's master key next time the database is opened.  This element SHOULD
+    be removed or set to 'False' once the master key has been changed.
 
 `<MemoryProtection>`
 :   A complex XML type for configuring which fields SHOULD be protected by
-in-memory encryption at runtime.  The element MAY have the *BOOLEAN* child
-elements `<ProtectTitle>`, `<ProtectUserName>`, `<ProtectPassword>`,
-`<ProtectURL>`, and `<ProtectNotes>` for protection of the title, username,
-password, URL and notes fields.
+    in-memory encryption at runtime.  The element MAY have the *BOOLEAN* child
+    elements `<ProtectTitle>`, `<ProtectUserName>`, `<ProtectPassword>`,
+    `<ProtectURL>`, and `<ProtectNotes>` for protection of the title, username,
+    password, URL and notes fields.
 
 `<CustomIcons>`
 :   A complex XML type containing a sequence of zero or more custom icons, which
-can be used for visually customizing groups and entries (described in (#groups)
-and (#entries)).  An icon is an `<Icon>` element, which has exactly two children
-`<UUID>` (a *UUID*) and `<Data>`.  `<Data>` contains the icon image data as *BLOB*.
+    can be used for visually customizing groups and entries (described in (#groups)
+    and (#entries)).  An icon is an `<Icon>` element, which has exactly two
+    children `<UUID>` (a *UUID*) and `<Data>`.  `<Data>` contains the icon image
+    data as *BLOB*.
 
 `<RecycleBinEnabled>`
 :   *BOOLEAN* indicating whether the database has an enable recycle bin.
@@ -262,41 +264,49 @@ and (#entries)).  An icon is an `<Icon>` element, which has exactly two children
 
 `<EntryTemplatesGroup>`
 :   The *UUID* of the group that contains templates for the creation of
-new entries.
+    new entries.
 
 `<EntryTemplatesGroupChanged>`
 :   *DATETIME* of the last change to the templates group.
 
 `<HistoryMaxItems>`
 :   An *INTEGER* indicating the maximum number of items the history of
-an element may have (history items are described in (#entry-history)).
-When the number of items in an entry's history exceeds this number, the
-password manager SHOULD delete the oldest history items until the number
- of history items no longer exceeds this value.
+    an element may have (history items are described in (#entry-history)).
+    When the number of items in an entry's history exceeds this number, the
+    password manager SHOULD delete the oldest history items until the number
+    of history items no longer exceeds this value.
 
 `<HistoryMaxSize>`
 :   An *INTEGER* indicating the maximum history size in bytes. If an entry's
-history exceeds this size, the password manager SHOULD delete the oldest
-history items, until the total history size no longer exceeds this value.
+    history exceeds this size, the password manager SHOULD delete the oldest
+    history items, until the total history size no longer exceeds this value.
 
 `<LastSelectedGroup>`
 :   *UUID* of the group that was last selected by the user.
 
 `<LastTopVisibleGroup>`
 :   *UUID* of the last 'top' item. This seems to always be the root group
-of the database.
+    of the database.
 
-`<Binaries>`
+`<Binaries>` (KDBX 3.1)
 :   A sequence of zero or more `<Binary>` elements containing files attached
-to entries in the database.  Each `<Binary>` element is a *BLOB* containing
-the file's contents. `<Binary>` elements MUST have an `ID` attribute, which
-is a unique *INTEGER* identifying the *BLOB* data and a *BOOLEAN* attribute
-`Compressed`, indicating whether the *BLOB* data is Gzip-compressed [@RFC1952].
-A database SHOULD NOT contain two `<Binary>` elements with the same *BLOB* data.
+    to entries in the database.  Each `<Binary>` element is a *BLOB* containing
+    the file's contents. `<Binary>` elements MUST have an `ID` attribute,
+    which is a unique *INTEGER* identifying the *BLOB* data and a *BOOLEAN*
+    attribute `Compressed`, indicating whether the *BLOB* data is
+    Gzip-compressed [@RFC1952].
+    \
+    A database SHOULD NOT contain two `<Binary>` elements with the same
+    *BLOB* data.
+    \
+    This element is only specified for KDBX 3.1 and lower.  KDBX 4.0 stores
+    files in its encrypted binary inner header, so this element MUST NOT be
+    present if the container format is version 4.0 or higher.
 
 `<CustomData>`
 :   A sequence of zero or more *STRING MAP* `<Item>` elements. `<Item>`
-elements can be used by plugins to store arbitrary string data at database level.
+    elements can be used by plugins to store arbitrary string data at database
+    level.
 
 ## Data Section
 

@@ -152,10 +152,11 @@ on the allowed string values.
 characters in the range 0 to 9.  <spanx style="emph">INTEGERs</spanx> can have a negative sign <spanx style="verb">-</spanx>
 in front.</t>
 <t>A <spanx style="emph">BOOLEAN</spanx> is represented by the strings <spanx style="verb">True</spanx> and <spanx style="verb">False</spanx>.  The
-alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx>, as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx>, are also possible.</t>
+alternative forms <spanx style="verb">true</spanx> and <spanx style="verb">false</spanx>, as well as <spanx style="verb">1</spanx> and <spanx style="verb">0</spanx>, are also
+possible.</t>
 <t>A <spanx style="emph">DATETIME</spanx> is an XML datetime in ISO 8601 format <xref target="RFC3339"/>.</t>
-<t>A <spanx style="emph">COLOR</spanx> is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or
-a-f), preceded by a # character (e.g., #FF00FF for magenta)</t>
+<t>A <spanx style="emph">COLOR</spanx> is a six-digit hexadecimal RGB color code (characters 0-9
+and A-F or a-f), preceded by a # character (e.g., #FF00FF for magenta)</t>
 <t>A <spanx style="emph">BLOB</spanx> is a Base64-encoded <xref target="RFC4648"/> string representation of
 arbitrary binary data.</t>
 <t>A <spanx style="emph">STRING MAP</spanx> is a complex XML type with exactly two child elements
@@ -166,8 +167,8 @@ value string.</t>
 </section>
 
 <section anchor="identifiers" title="Identifiers">
-<t>Unique resources inside the database are identified by a <spanx style="emph">UUID</spanx>, which is a globally
-unique 128-bit (16-byte) identifier. <spanx style="emph">UUIDs</spanx> are encoded as <spanx style="emph">BLOBs</spanx>.
+<t>Unique resources inside the database are identified by a <spanx style="emph">UUID</spanx>, which is a
+globally unique 128-bit (16-byte) identifier. <spanx style="emph">UUIDs</spanx> are encoded as <spanx style="emph">BLOBs</spanx>.
 </t>
 </section>
 </section>
@@ -208,10 +209,11 @@ to describe various database meta data.
 </t>
 <t>
 <list style="hanging">
-<t hangText="&lt;HeaderHash&gt;">
-The SHA-256 <xref target="RFC4634"/> hash of the KDBX header data as <spanx style="emph">BLOB</spanx>.  This element is
-only useful for KDBX 3.1 or lower, but MAY also be present in KDBX 4.0 or higher.</t>
-<t hangText="&lt;SettingsChanged&gt;">
+<t hangText="&lt;HeaderHash&gt; (KDBX 3.1)">
+The SHA-256 <xref target="RFC4634"/> hash of the KDBX header data as <spanx style="emph">BLOB</spanx>.  This
+element is only useful for KDBX 3.1 or lower, but MAY also be present
+in KDBX 4.0 or higher.</t>
+<t hangText="&lt;SettingsChanged&gt; (KDBX 4.0)">
 <spanx style="emph">DATETIME</spanx> of the last change of database meta data or KDBX container
 settings.  This element is only specified for KDBX containers <spanx style="strong">version 4.0
 or higher</spanx> and MUST NOT be present in KDBX 3.1 or lower.</t>
@@ -226,8 +228,7 @@ An optional description of the database.</t>
 <t hangText="&lt;DatabaseDescriptionChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DatabaseDescription&gt;</spanx>.</t>
 <t hangText="&lt;DefaultUserName&gt;">
-The username to use as a default when creating a new entry in the
-database.</t>
+The username to use as a default when creating a new entry in the database.</t>
 <t hangText="&lt;DefaultUserNameChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change of <spanx style="verb">&lt;DefaultUserName&gt;</spanx>.</t>
 <t hangText="&lt;MaintenanceHistoryDays&gt;">
@@ -257,8 +258,9 @@ password, URL and notes fields.</t>
 <t hangText="&lt;CustomIcons&gt;">
 A complex XML type containing a sequence of zero or more custom icons, which
 can be used for visually customizing groups and entries (described in <xref target="groups"/>
-and <xref target="entries"/>).  An icon is an <spanx style="verb">&lt;Icon&gt;</spanx> element, which has exactly two children
-<spanx style="verb">&lt;UUID&gt;</spanx> (a <spanx style="emph">UUID</spanx>) and <spanx style="verb">&lt;Data&gt;</spanx>.  <spanx style="verb">&lt;Data&gt;</spanx> contains the icon image data as <spanx style="emph">BLOB</spanx>.</t>
+and <xref target="entries"/>).  An icon is an <spanx style="verb">&lt;Icon&gt;</spanx> element, which has exactly two
+children <spanx style="verb">&lt;UUID&gt;</spanx> (a <spanx style="emph">UUID</spanx>) and <spanx style="verb">&lt;Data&gt;</spanx>.  <spanx style="verb">&lt;Data&gt;</spanx> contains the icon image
+data as <spanx style="emph">BLOB</spanx>.</t>
 <t hangText="&lt;RecycleBinEnabled&gt;">
 <spanx style="emph">BOOLEAN</spanx> indicating whether the database has an enable recycle bin.</t>
 <t hangText="&lt;RecycleBinUUID&gt;">
@@ -285,16 +287,26 @@ history items, until the total history size no longer exceeds this value.</t>
 <t hangText="&lt;LastTopVisibleGroup&gt;">
 <spanx style="emph">UUID</spanx> of the last 'top' item. This seems to always be the root group
 of the database.</t>
-<t hangText="&lt;Binaries&gt;">
+<t hangText="&lt;Binaries&gt; (KDBX 3.1)">
 A sequence of zero or more <spanx style="verb">&lt;Binary&gt;</spanx> elements containing files attached
 to entries in the database.  Each <spanx style="verb">&lt;Binary&gt;</spanx> element is a <spanx style="emph">BLOB</spanx> containing
-the file's contents. <spanx style="verb">&lt;Binary&gt;</spanx> elements MUST have an <spanx style="verb">ID</spanx> attribute, which
-is a unique <spanx style="emph">INTEGER</spanx> identifying the <spanx style="emph">BLOB</spanx> data and a <spanx style="emph">BOOLEAN</spanx> attribute
-<spanx style="verb">Compressed</spanx>, indicating whether the <spanx style="emph">BLOB</spanx> data is Gzip-compressed <xref target="RFC1952"/>.
-A database SHOULD NOT contain two <spanx style="verb">&lt;Binary&gt;</spanx> elements with the same <spanx style="emph">BLOB</spanx> data.</t>
+the file's contents. <spanx style="verb">&lt;Binary&gt;</spanx> elements MUST have an <spanx style="verb">ID</spanx> attribute,
+which is a unique <spanx style="emph">INTEGER</spanx> identifying the <spanx style="emph">BLOB</spanx> data and a <spanx style="emph">BOOLEAN</spanx>
+attribute <spanx style="verb">Compressed</spanx>, indicating whether the <spanx style="emph">BLOB</spanx> data is
+Gzip-compressed <xref target="RFC1952"/>.
+
+<vspace/>
+A database SHOULD NOT contain two <spanx style="verb">&lt;Binary&gt;</spanx> elements with the same
+<spanx style="emph">BLOB</spanx> data.
+
+<vspace/>
+This element is only specified for KDBX 3.1 and lower.  KDBX 4.0 stores
+files in its encrypted binary inner header, so this element MUST NOT be
+present if the container format is version 4.0 or higher.</t>
 <t hangText="&lt;CustomData&gt;">
 A sequence of zero or more <spanx style="emph">STRING MAP</spanx> <spanx style="verb">&lt;Item&gt;</spanx> elements. <spanx style="verb">&lt;Item&gt;</spanx>
-elements can be used by plugins to store arbitrary string data at database level.</t>
+elements can be used by plugins to store arbitrary string data at database
+level.</t>
 </list>
 </t>
 </section>
