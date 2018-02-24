@@ -203,7 +203,7 @@ the referenced resource MUST exist.
 </t>
 </section>
 
-<section anchor="trivial-changes" title="Trivial Changes">
+<section anchor="ephemeral-changes" title="Ephemeral Changes">
 <t>Most data in a database is generated and updated explicitly by the user.
 There exists, however, data that is implicitly generated or updated by
 certain (trivial) user actions (e.g. by selecting an entry or copying a

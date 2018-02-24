@@ -43,7 +43,7 @@ Table of Contents
        3.1.1.  Basic Data Types  . . . . . . . . . . . . . . . . . .   3
        3.1.2.  Protected Elements  . . . . . . . . . . . . . . . . .   4
        3.1.3.  Identifiers . . . . . . . . . . . . . . . . . . . . .   4
-       3.1.4.  Trivial Changes . . . . . . . . . . . . . . . . . . .   5
+       3.1.4.  Ephemeral Changes . . . . . . . . . . . . . . . . . .   5
      3.2.  Main Elements . . . . . . . . . . . . . . . . . . . . . .   5
      3.3.  Meta Data Section . . . . . . . . . . . . . . . . . . . .   6
      3.4.  Data Section  . . . . . . . . . . . . . . . . . . . . . .   8
@@ -231,7 +231,7 @@ Bevendorff               Expires August 23, 2018                [Page 4]
 
    The zero UUID itself MUST NOT be used as a _KEY_.
 
-3.1.4.  Trivial Changes
+3.1.4.  Ephemeral Changes
 
    Most data in a database is generated and updated explicitly by the
    user.  There exists, however, data that is implicitly generated or

@@ -181,7 +181,7 @@ the referenced resource MUST exist.
 
 The zero UUID itself MUST NOT be used as a *KEY*.
 
-### Trivial Changes
+### Ephemeral Changes
 
 Most data in a database is generated and updated explicitly by the user.
 There exists, however, data that is implicitly generated or updated by

@@ -1,0 +1,685 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+
+  <title>KeePass2 XML Payload Format</title>
+
+  <style type="text/css" title="Xml2Rfc (sans serif)">
+  /*<![CDATA[*/
+	  a {
+	  text-decoration: none;
+	  }
+      /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+      a.info {
+          /* This is the key. */
+          position: relative;
+          z-index: 24;
+          text-decoration: none;
+      }
+      a.info:hover {
+          z-index: 25;
+          color: #FFF; background-color: #900;
+      }
+      a.info span { display: none; }
+      a.info:hover span.info {
+          /* The span will display just on :hover state. */
+          display: block;
+          position: absolute;
+          font-size: smaller;
+          top: 2em; left: -5em; width: 15em;
+          padding: 2px; border: 1px solid #333;
+          color: #900; background-color: #EEE;
+          text-align: left;
+      }
+	  a.smpl {
+	  color: black;
+	  }
+	  a:hover {
+	  text-decoration: underline;
+	  }
+	  a:active {
+	  text-decoration: underline;
+	  }
+	  address {
+	  margin-top: 1em;
+	  margin-left: 2em;
+	  font-style: normal;
+	  }
+	  body {
+	  color: black;
+	  font-family: verdana, helvetica, arial, sans-serif;
+	  font-size: 10pt;
+	  max-width: 55em;
+	  
+	  }
+	  cite {
+	  font-style: normal;
+	  }
+	  dd {
+	  margin-right: 2em;
+	  }
+	  dl {
+	  margin-left: 2em;
+	  }
+	
+	  ul.empty {
+	  list-style-type: none;
+	  }
+	  ul.empty li {
+	  margin-top: .5em;
+	  }
+	  dl p {
+	  margin-left: 0em;
+	  }
+	  dt {
+	  margin-top: .5em;
+	  }
+	  h1 {
+	  font-size: 14pt;
+	  line-height: 21pt;
+	  page-break-after: avoid;
+	  }
+	  h1.np {
+	  page-break-before: always;
+	  }
+	  h1 a {
+	  color: #333333;
+	  }
+	  h2 {
+	  font-size: 12pt;
+	  line-height: 15pt;
+	  page-break-after: avoid;
+	  }
+	  h3, h4, h5, h6 {
+	  font-size: 10pt;
+	  page-break-after: avoid;
+	  }
+	  h2 a, h3 a, h4 a, h5 a, h6 a {
+	  color: black;
+	  }
+	  img {
+	  margin-left: 3em;
+	  }
+	  li {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  ol {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  ol p {
+	  margin-left: 0em;
+	  }
+	  p {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  pre {
+	  margin-left: 3em;
+	  background-color: lightyellow;
+	  padding: .25em;
+	  }
+	  pre.text2 {
+	  border-style: dotted;
+	  border-width: 1px;
+	  background-color: #f0f0f0;
+	  width: 69em;
+	  }
+	  pre.inline {
+	  background-color: white;
+	  padding: 0em;
+	  }
+	  pre.text {
+	  border-style: dotted;
+	  border-width: 1px;
+	  background-color: #f8f8f8;
+	  width: 69em;
+	  }
+	  pre.drawing {
+	  border-style: solid;
+	  border-width: 1px;
+	  background-color: #f8f8f8;
+	  padding: 2em;
+	  }
+	  table {
+	  margin-left: 2em;
+	  }
+	  table.tt {
+	  vertical-align: top;
+	  }
+	  table.full {
+	  border-style: outset;
+	  border-width: 1px;
+	  }
+	  table.headers {
+	  border-style: outset;
+	  border-width: 1px;
+	  }
+	  table.tt td {
+	  vertical-align: top;
+	  }
+	  table.full td {
+	  border-style: inset;
+	  border-width: 1px;
+	  }
+	  table.tt th {
+	  vertical-align: top;
+	  }
+	  table.full th {
+	  border-style: inset;
+	  border-width: 1px;
+	  }
+	  table.headers th {
+	  border-style: none none inset none;
+	  border-width: 1px;
+	  }
+	  table.left {
+	  margin-right: auto;
+	  }
+	  table.right {
+	  margin-left: auto;
+	  }
+	  table.center {
+	  margin-left: auto;
+	  margin-right: auto;
+	  }
+	  caption {
+	  caption-side: bottom;
+	  font-weight: bold;
+	  font-size: 9pt;
+	  margin-top: .5em;
+	  }
+	
+	  table.header {
+	  border-spacing: 1px;
+	  width: 95%;
+	  font-size: 10pt;
+	  color: white;
+	  }
+	  td.top {
+	  vertical-align: top;
+	  }
+	  td.topnowrap {
+	  vertical-align: top;
+	  white-space: nowrap; 
+	  }
+	  table.header td {
+	  background-color: gray;
+	  width: 50%;
+	  }
+	  table.header a {
+	  color: white;
+	  }
+	  td.reference {
+	  vertical-align: top;
+	  white-space: nowrap;
+	  padding-right: 1em;
+	  }
+	  thead {
+	  display:table-header-group;
+	  }
+	  ul.toc, ul.toc ul {
+	  list-style: none;
+	  margin-left: 1.5em;
+	  margin-right: 0em;
+	  padding-left: 0em;
+	  }
+	  ul.toc li {
+	  line-height: 150%;
+	  font-weight: bold;
+	  font-size: 10pt;
+	  margin-left: 0em;
+	  margin-right: 0em;
+	  }
+	  ul.toc li li {
+	  line-height: normal;
+	  font-weight: normal;
+	  font-size: 9pt;
+	  margin-left: 0em;
+	  margin-right: 0em;
+	  }
+	  li.excluded {
+	  font-size: 0pt;
+	  }
+	  ul p {
+	  margin-left: 0em;
+	  }
+	
+	  .comment {
+	  background-color: yellow;
+	  }
+	  .center {
+	  text-align: center;
+	  }
+	  .error {
+	  color: red;
+	  font-style: italic;
+	  font-weight: bold;
+	  }
+	  .figure {
+	  font-weight: bold;
+	  text-align: center;
+	  font-size: 9pt;
+	  }
+	  .filename {
+	  color: #333333;
+	  font-weight: bold;
+	  font-size: 12pt;
+	  line-height: 21pt;
+	  text-align: center;
+	  }
+	  .fn {
+	  font-weight: bold;
+	  }
+	  .hidden {
+	  display: none;
+	  }
+	  .left {
+	  text-align: left;
+	  }
+	  .right {
+	  text-align: right;
+	  }
+	  .title {
+	  color: #990000;
+	  font-size: 18pt;
+	  line-height: 18pt;
+	  font-weight: bold;
+	  text-align: center;
+	  margin-top: 36pt;
+	  }
+	  .vcardline {
+	  display: block;
+	  }
+	  .warning {
+	  font-size: 14pt;
+	  background-color: yellow;
+	  }
+	
+	
+	  @media print {
+	  .noprint {
+		display: none;
+	  }
+	
+	  a {
+		color: black;
+		text-decoration: none;
+	  }
+	
+	  table.header {
+		width: 90%;
+	  }
+	
+	  td.header {
+		width: 50%;
+		color: black;
+		background-color: white;
+		vertical-align: top;
+		font-size: 12pt;
+	  }
+	
+	  ul.toc a::after {
+		content: leader('.') target-counter(attr(href), page);
+	  }
+	
+	  ul.ind li li a {
+		content: target-counter(attr(href), page);
+	  }
+	
+	  .print2col {
+		column-count: 2;
+		-moz-column-count: 2;
+		column-fill: auto;
+	  }
+	  }
+	
+	  @page {
+	  @top-left {
+		   content: "Internet-Draft"; 
+	  } 
+	  @top-right {
+		   content: "December 2010"; 
+	  } 
+	  @top-center {
+		   content: "Abbreviated Title";
+	  } 
+	  @bottom-left {
+		   content: "Doe"; 
+	  } 
+	  @bottom-center {
+		   content: "Expires June 2011"; 
+	  } 
+	  @bottom-right {
+		   content: "[Page " counter(page) "]"; 
+	  } 
+	  }
+	
+	  @page:first { 
+		@top-left {
+		  content: normal;
+		}
+		@top-right {
+		  content: normal;
+		}
+		@top-center {
+		  content: normal;
+		}
+	  }
+  /*]]>*/
+  </style>
+
+  <link href="#rfc.toc" rel="Contents"/>
+<link href="#rfc.section.1" rel="Chapter" title="1 Introduction"/>
+<link href="#rfc.section.2" rel="Chapter" title="2 Conventions"/>
+<link href="#rfc.section.2.1" rel="Chapter" title="2.1 General Database Structure"/>
+<link href="#rfc.section.3" rel="Chapter" title="3 XML Format Description"/>
+<link href="#rfc.section.3.1" rel="Chapter" title="3.1 XML Schema"/>
+<link href="#rfc.section.3.1.1" rel="Chapter" title="3.1.1 Basic Data Types"/>
+<link href="#rfc.section.3.1.2" rel="Chapter" title="3.1.2 Identifiers"/>
+<link href="#rfc.section.3.2" rel="Chapter" title="3.2 Main Elements"/>
+<link href="#rfc.section.3.3" rel="Chapter" title="3.3 Meta Data Section"/>
+<link href="#rfc.section.3.4" rel="Chapter" title="3.4 Data Section"/>
+<link href="#rfc.section.3.4.1" rel="Chapter" title="3.4.1 Groups"/>
+<link href="#rfc.section.3.4.2" rel="Chapter" title="3.4.2 Entries"/>
+<link href="#rfc.section.3.4.3" rel="Chapter" title="3.4.3 Deleted Objects"/>
+<link href="#rfc.section.4" rel="Chapter" title="4 Security Considerations"/>
+<link href="#rfc.references" rel="Chapter" title="5 References"/>
+<link href="#rfc.references.1" rel="Chapter" title="5.1 Normative References"/>
+<link href="#rfc.references.2" rel="Chapter" title="5.2 Informative References"/>
+<link href="#rfc.authors" rel="Chapter"/>
+
+
+  <meta name="generator" content="xml2rfc version 2.5.1 - http://tools.ietf.org/tools/xml2rfc" />
+  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
+
+  <meta name="dct.creator" content="Bevendorff, J." />
+  <meta name="dct.identifier" content="urn:ietf:id:keepass2-xml-rfc" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-2-19" />
+  <meta name="dct.abstract" content="This document describes the XML payload format used in KDBX 3.1 and 4.0 containers.  KDBX is an encrypted, XML-based container format for secure password storage used by KeePass 2.x, KeePassXC and various other password managers.  This document only describes the actual XML payload and not the KDBX container format itself.  " />
+  <meta name="description" content="This document describes the XML payload format used in KDBX 3.1 and 4.0 containers.  KDBX is an encrypted, XML-based container format for secure password storage used by KeePass 2.x, KeePassXC and various other password managers.  This document only describes the actual XML payload and not the KDBX container format itself.  " />
+
+</head>
+
+<body>
+
+  <table class="header">
+    <tbody>
+    
+    	<tr>
+  <td class="left"></td>
+  <td class="right">J. Bevendorff</td>
+</tr>
+<tr>
+  <td class="left"></td>
+  <td class="right">KeePassXC Team</td>
+</tr>
+<tr>
+  <td class="left"></td>
+  <td class="right">February 19, 2018</td>
+</tr>
+
+    	
+    </tbody>
+  </table>
+
+  <p class="title">KeePass2 XML Payload Format<br />
+  <span class="filename">keepass2-xml-rfc</span></p>
+  
+  <h1 id="rfc.abstract">
+  <a href="#rfc.abstract">Abstract</a>
+</h1>
+<p>This document describes the XML payload format used in KDBX 3.1 and 4.0 containers.  KDBX is an encrypted, XML-based container format for secure password storage used by KeePass 2.x, KeePassXC and various other password managers.  This document only describes the actual XML payload and not the KDBX container format itself.  </p>
+<h1>
+  <a>Status of This Memo</a>
+</h1>
+<p>This document is not normative for the KDBX file format; it is published for informative purposes with the goal to support development of KDBX-based password management applications.  </p>
+<p>The information contained in this document is a work-in-progress reverse engineering effort of the KDBX file format and likely to be incomplete or even incorrect at this point in time. This memo is not recommended for use as reference guide yet.  </p>
+<h1>
+  <a>Copyright Notice</a>
+</h1>
+<p>Copyright (C) 2018 KeePassXC Team </p>
+
+  
+  <hr class="noprint" />
+  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
+  <ul class="toc">
+
+  	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
+<li>2.   <a href="#rfc.section.2">Conventions</a></li>
+<ul><li>2.1.   <a href="#rfc.section.2.1">General Database Structure</a></li>
+</ul><li>3.   <a href="#rfc.section.3">XML Format Description</a></li>
+<ul><li>3.1.   <a href="#rfc.section.3.1">XML Schema</a></li>
+<ul><li>3.1.1.   <a href="#rfc.section.3.1.1">Basic Data Types</a></li>
+<li>3.1.2.   <a href="#rfc.section.3.1.2">Identifiers</a></li>
+</ul><li>3.2.   <a href="#rfc.section.3.2">Main Elements</a></li>
+<li>3.3.   <a href="#rfc.section.3.3">Meta Data Section</a></li>
+<li>3.4.   <a href="#rfc.section.3.4">Data Section</a></li>
+<ul><li>3.4.1.   <a href="#rfc.section.3.4.1">Groups</a></li>
+<li>3.4.2.   <a href="#rfc.section.3.4.2">Entries</a></li>
+<li>3.4.3.   <a href="#rfc.section.3.4.3">Deleted Objects</a></li>
+</ul></ul><li>4.   <a href="#rfc.section.4">Security Considerations</a></li>
+<li>5.   <a href="#rfc.references">References</a></li>
+<ul><li>5.1.   <a href="#rfc.references.1">Normative References</a></li>
+<li>5.2.   <a href="#rfc.references.2">Informative References</a></li>
+</ul><li><a href="#rfc.authors">Author's Address</a></li>
+
+
+  </ul>
+
+  <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
+<p id="rfc.section.1.p.1">This document describes the payload format used in KDBX (version 3.1 and 4.0) files.  The payload is encoded as XML ("Extensible Markup Language" <a href="#XML">[XML]</a>).  </p>
+<p id="rfc.section.1.p.2">KDBX file format versions 3.1 and 4.0 use the same XML structure with minor differences in the tags supported.  A note is added where KDBX 3.1 and 4.0 differ.  </p>
+<p id="rfc.section.1.p.3">The XML payload itself is mostly self-contained, but may reference data from the outer KDBX container. A note is given where this is the case.  </p>
+<h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#conventions" id="conventions">Conventions</a></h1>
+<p id="rfc.section.2.p.1">In this document, the keywords 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL', 'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED', 'MAY', and 'OPTIONAL' in capital letters are used to indicate requirements for the format specification. Their meaning is described in <a href="#RFC2119">[RFC2119]</a>.  </p>
+<p id="rfc.section.2.p.2">The term 'Database' refers to the decrypted XML document payload of a KDBX container.  </p>
+<p id="rfc.section.2.p.3">Conversely, the term 'KDBX' refers to the full container, including its encrypted XML payload.  </p>
+<h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#general-database-structure" id="general-database-structure">General Database Structure</a></h1>
+<p id="rfc.section.2.1.p.1">A database comprises two main parts: a <em>meta data section</em> and the actual <em>data section</em>.  </p>
+<p id="rfc.section.2.1.p.2">The meta data section contains general information about the database itself, maintenance information (e.g., when and how to clean up deleted entries), access and modification information (e.g., date and time of the last database title change), and additional global resources (e.g., custom icons).  </p>
+<p id="rfc.section.2.1.p.3">The data section contains the actual user data as a tree structure of <em>groups</em> and <em>entries</em>.  </p>
+<p id="rfc.section.2.1.p.4">A <em>group</em> is an element with various attributes containing zero or more <em>entries</em>.  A group can also contain zero or more sub groups, which can again contain groups and entries.  The format of a group is described in <a href="#groups">Section 3.4.1</a>.  </p>
+<p id="rfc.section.2.1.p.5">An <em>entry</em> is a set of user credentials and other related data. An entry MUST have a single parent group.  The attributes of an entry are described in <a href="#entries">Section 3.4.2</a>.  </p>
+<p id="rfc.section.2.1.p.6">A database MUST have exactly one <em>root group</em>, which acts as common ancestor of all other groups and entries.  </p>
+<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#xml-format-description" id="xml-format-description">XML Format Description</a></h1>
+<h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#xml-schema" id="xml-schema">XML Schema</a></h1>
+<p id="rfc.section.3.1.p.1">A full XML 1.0 schema <a href="#XMLSchema">[XMLSchema]</a> is provided in: <a href="kdbx4.0-schema.xsd">kdbx4.0-schema.xsd</a> </p>
+<p id="rfc.section.3.1.p.2">The schema file is only intended for informative purposes.  In practice, parsers SHALL NOT use this schema for strict validation.  Most importantly, parsers SHALL NOT make assumptions about the order of elements.  <samp>&lt;xs:sequence&gt;</samp> elements are used exclusively for Schema 1.0 compatibility, while in reality, no particular element order is guaranteed.  </p>
+<p id="rfc.section.3.1.p.3">Given the sensitive nature of the data contained in a passwords file, a parser SHOULD be reasonably forgiving while trying to read the XML data of a successfully decrypted KDBX file.  </p>
+<h1 id="rfc.section.3.1.1"><a href="#rfc.section.3.1.1">3.1.1.</a> <a href="#basic-data-types" id="basic-data-types">Basic Data Types</a></h1>
+<p id="rfc.section.3.1.1.p.1">All data stored in a KeePass XML file is UTF-8 string data.  Most XML elements or attributes can contain arbitrary string values, but some elements or attributes require special data types, which impose extra restrictions on the allowed string values.  </p>
+<p id="rfc.section.3.1.1.p.2">The following special data types exist: </p>
+<p/>
+
+<ul>
+  <li>An <em>INTEGER</em> is a numeric decimal string consisting of one or more characters in the range 0 to 9.  <em>INTEGERs</em> can have a negative sign <samp>-</samp> in front.</li>
+  <li>A <em>BOOLEAN</em> is represented by the strings <samp>True</samp> and <samp>False</samp>.  The alternative forms <samp>true</samp> and <samp>false</samp>, as well as <samp>1</samp> and <samp>0</samp>, are also possible.</li>
+  <li>A <em>DATETIME</em> is an XML datetime in ISO 8601 format <a href="#RFC3339">[RFC3339]</a>.</li>
+  <li>A <em>COLOR</em> is a six-digit hexadecimal RGB color code (characters 0-9 and A-F or a-f), preceded by a # character (e.g., #FF00FF for magenta)</li>
+  <li>A <em>BLOB</em> is a Base64-encoded <a href="#RFC4648">[RFC4648]</a> string representation of arbitrary binary data.</li>
+  <li>A <em>STRING MAP</em> is a complex XML type with exactly two child elements <samp>&lt;Key&gt;</samp> and <samp>&lt;Value&gt;</samp> describing a mapping between a key string and a value string.</li>
+</ul>
+
+<p> </p>
+<h1 id="rfc.section.3.1.2"><a href="#rfc.section.3.1.2">3.1.2.</a> <a href="#identifiers" id="identifiers">Identifiers</a></h1>
+<p id="rfc.section.3.1.2.p.1">Unique resources inside the database are identified by a <em>UUID</em>, which is a globally unique 128-bit (16-byte) identifier. <em>UUIDs</em> are encoded as <em>BLOBs</em>.  </p>
+<h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#main-elements" id="main-elements">Main Elements</a></h1>
+<p id="rfc.section.3.2.p.1">A KeePass XML database SHOULD start with an XML declaration.  The encoding of the XML data MUST be UTF-8 <a href="#RFC3629">[RFC3629]</a>.  </p>
+<p id="rfc.section.3.2.p.2">The XML document MUST have a root element named <samp>&lt;KeePassFile&gt;</samp>.  The <samp>&lt;KeePassFile&gt;</samp> root element MUST have exactly two child nodes <samp>&lt;Meta&gt;</samp> and <samp>&lt;Root&gt;</samp>: </p>
+<pre>
+&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?&gt;
+&lt;KeePassFile&gt;
+    &lt;Meta&gt;
+        &lt;!-- Database meta data --&gt;
+    &lt;/Meta&gt;
+    &lt;Root&gt;
+        &lt;!-- Database root group --&gt;
+        &lt;!-- Optional deleted object records --&gt;
+    &lt;/Root&gt;
+&lt;/KeePassFile&gt;
+</pre>
+<p><samp>&lt;Meta&gt;</samp> contains the database's meta data section, while <samp>&lt;Root&gt;</samp> contains the actual data section, i.e., the root group (see <a href="#general-database-structure">Section 2.1</a>).  </p>
+<p id="rfc.section.3.2.p.4">Besides the database's root group, <samp>&lt;Root&gt;</samp> MAY also contain historical records of deleted objects, whose format is described in <a href="#deleted-objects">Section 3.4.3</a>.  </p>
+<h1 id="rfc.section.3.3"><a href="#rfc.section.3.3">3.3.</a> <a href="#meta-data-section" id="meta-data-section">Meta Data Section</a></h1>
+<p id="rfc.section.3.3.p.1">The <samp>&lt;Meta&gt;</samp> element MAY contain any of the following elements at most once to describe various database meta data.  </p>
+<p/>
+
+<dl>
+  <dt>&lt;HeaderHash&gt; (KDBX 3.1)</dt>
+  <dd style="margin-left: 8">The SHA-256 <a href="#RFC4634">[RFC4634]</a> hash of the KDBX header data as <em>BLOB</em>.  This element is only useful for KDBX 3.1 or lower, but MAY also be present in KDBX 4.0 or higher.</dd>
+  <dt>&lt;SettingsChanged&gt; (KDBX 4.0)</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change of database meta data or KDBX container settings.  This element is only specified for KDBX containers <strong>version 4.0 or higher</strong> and MUST NOT be present in KDBX 3.1 or lower.</dd>
+  <dt>&lt;Generator&gt;</dt>
+  <dd style="margin-left: 8">The name of the program that generated the KDBX file.</dd>
+  <dt>&lt;DatabaseName&gt;</dt>
+  <dd style="margin-left: 8">An optional name for the database.</dd>
+  <dt>&lt;DatabaseNameChanged&gt;</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change of <samp>&lt;DatabaseName&gt;</samp>.</dd>
+  <dt>&lt;DatabaseDescription&gt;</dt>
+  <dd style="margin-left: 8">An optional description of the database.</dd>
+  <dt>&lt;DatabaseDescriptionChanged&gt;</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change of <samp>&lt;DatabaseDescription&gt;</samp>.</dd>
+  <dt>&lt;DefaultUserName&gt;</dt>
+  <dd style="margin-left: 8">The username to use as a default when creating a new entry in the database.</dd>
+  <dt>&lt;DefaultUserNameChanged&gt;</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change of <samp>&lt;DefaultUserName&gt;</samp>.</dd>
+  <dt>&lt;MaintenanceHistoryDays&gt;</dt>
+  <dd style="margin-left: 8"><em>INTEGER</em> indicating the maximum age of the oldest history item to keep in days.</dd>
+  <dt>&lt;Color&gt;</dt>
+  <dd style="margin-left: 8">A <em>COLOR</em> that can be used for coloring the program icon or database tab inside the password manager application.</dd>
+  <dt>&lt;MasterKeyChanged&gt;</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change of the database's master key.</dd>
+  <dt>&lt;MasterKeyChangeRec&gt;</dt>
+  <dd style="margin-left: 8"><em>INTEGER</em> indicating the number of days after which the password manager SHOULD recommend changing the database's master key (-1 means 'never')</dd>
+  <dt>&lt;MasterKeyChangeForce&gt;</dt>
+  <dd style="margin-left: 8"><em>INTEGER</em> indicating the number of days after which the password manager SHOULD force changing the database's master key (-1 means 'never')</dd>
+  <dt>&lt;MasterKeyChangeForceOnce&gt;</dt>
+  <dd style="margin-left: 8"><em>BOOLEAN</em> indicating that the password manager SHOULD force changing the database's master key next time the database is opened.  This element SHOULD be removed or set to 'False' once the master key has been changed.</dd>
+  <dt>&lt;MemoryProtection&gt;</dt>
+  <dd style="margin-left: 8">A complex XML type for configuring which fields SHOULD be protected by in-memory encryption at runtime.  The element MAY have the <em>BOOLEAN</em> child elements <samp>&lt;ProtectTitle&gt;</samp>, <samp>&lt;ProtectUserName&gt;</samp>, <samp>&lt;ProtectPassword&gt;</samp>, <samp>&lt;ProtectURL&gt;</samp>, and <samp>&lt;ProtectNotes&gt;</samp> for protection of the title, username, password, URL and notes fields.</dd>
+  <dt>&lt;CustomIcons&gt;</dt>
+  <dd style="margin-left: 8">A complex XML type containing a sequence of zero or more custom icons, which can be used for visually customizing groups and entries (described in <a href="#groups">Section 3.4.1</a> and <a href="#entries">Section 3.4.2</a>).  An icon is an <samp>&lt;Icon&gt;</samp> element, which has exactly two children <samp>&lt;UUID&gt;</samp> (a <em>UUID</em>) and <samp>&lt;Data&gt;</samp>.  <samp>&lt;Data&gt;</samp> contains the icon image data as <em>BLOB</em>.</dd>
+  <dt>&lt;RecycleBinEnabled&gt;</dt>
+  <dd style="margin-left: 8"><em>BOOLEAN</em> indicating whether the database has an enable recycle bin.</dd>
+  <dt>&lt;RecycleBinUUID&gt;</dt>
+  <dd style="margin-left: 8">The <em>UUID</em> of the recycle bin group inside the database.</dd>
+  <dt>&lt;RecycleBinChanged&gt;</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change to the recycle bin.</dd>
+  <dt>&lt;EntryTemplatesGroup&gt;</dt>
+  <dd style="margin-left: 8">The <em>UUID</em> of the group that contains templates for the creation of new entries.</dd>
+  <dt>&lt;EntryTemplatesGroupChanged&gt;</dt>
+  <dd style="margin-left: 8"><em>DATETIME</em> of the last change to the templates group.</dd>
+  <dt>&lt;HistoryMaxItems&gt;</dt>
+  <dd style="margin-left: 8">An <em>INTEGER</em> indicating the maximum number of items the history of an element may have (history items are described in <a href="#entry-history">Section 3.4.2.1</a>).  When the number of items in an entry's history exceeds this number, the password manager SHOULD delete the oldest history items until the number of history items no longer exceeds this value.</dd>
+  <dt>&lt;HistoryMaxSize&gt;</dt>
+  <dd style="margin-left: 8">An <em>INTEGER</em> indicating the maximum history size in bytes. If an entry's history exceeds this size, the password manager SHOULD delete the oldest history items, until the total history size no longer exceeds this value.</dd>
+  <dt>&lt;LastSelectedGroup&gt;</dt>
+  <dd style="margin-left: 8"><em>UUID</em> of the group that was last selected by the user.</dd>
+  <dt>&lt;LastTopVisibleGroup&gt;</dt>
+  <dd style="margin-left: 8"><em>UUID</em> of the last 'top' item. This seems to always be the root group of the database.</dd>
+  <dt>&lt;Binaries&gt; (KDBX 3.1)</dt>
+  <dd style="margin-left: 8">A sequence of zero or more <samp>&lt;Binary&gt;</samp> elements containing files attached to entries in the database.  Each <samp>&lt;Binary&gt;</samp> element is a <em>BLOB</em> containing the file's contents. <samp>&lt;Binary&gt;</samp> elements MUST have an <samp>ID</samp> attribute, which is a unique <em>INTEGER</em> identifying the <em>BLOB</em> data and a <em>BOOLEAN</em> attribute <samp>Compressed</samp>, indicating whether the <em>BLOB</em> data is Gzip-compressed <a href="#RFC1952">[RFC1952]</a>.  <br/> A database SHOULD NOT contain two <samp>&lt;Binary&gt;</samp> elements with the same <em>BLOB</em> data.  <br/> This element is only specified for KDBX 3.1 and lower.  KDBX 4.0 stores files in its encrypted binary inner header, so this element MUST NOT be present if the container format is version 4.0 or higher.</dd>
+  <dt>&lt;CustomData&gt;</dt>
+  <dd style="margin-left: 8">A sequence of zero or more <em>STRING MAP</em> <samp>&lt;Item&gt;</samp> elements. <samp>&lt;Item&gt;</samp> elements can be used by plugins to store arbitrary string data at database level.</dd>
+</dl>
+
+<p> </p>
+<h1 id="rfc.section.3.4"><a href="#rfc.section.3.4">3.4.</a> <a href="#data-section" id="data-section">Data Section</a></h1>
+<h1 id="rfc.section.3.4.1"><a href="#rfc.section.3.4.1">3.4.1.</a> <a href="#groups" id="groups">Groups</a></h1>
+<h1 id="rfc.section.3.4.2"><a href="#rfc.section.3.4.2">3.4.2.</a> <a href="#entries" id="entries">Entries</a></h1>
+<h1 id="rfc.section.3.4.2.1"><a href="#rfc.section.3.4.2.1">3.4.2.1.</a> <a href="#entry-history" id="entry-history">Entry History</a></h1>
+<h1 id="rfc.section.3.4.3"><a href="#rfc.section.3.4.3">3.4.3.</a> <a href="#deleted-objects" id="deleted-objects">Deleted Objects</a></h1>
+<h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
+<p id="rfc.section.4.p.1">KDBX is an encrypted container format.  The security of the XML payload described in this document depends on the strength of the cipher and passphrase / key file used for encrypting the encapsulating KDBX container.  </p>
+<p id="rfc.section.4.p.2">In addition, all security considerations for <a href="#XML">[XML]</a> apply as well, including the use of recursive XML entities, which can consume an arbitrarily large amount of memory on the user's system during parsing.  </p>
+<h1 id="rfc.references"><a href="#rfc.references">5.</a> References</h1>
+<h1 id="rfc.references.1"><a href="#rfc.references.1">5.1.</a> Normative References</h1>
+<table>
+  <tbody>
+    <tr>
+      <td class="reference">
+        <b id="RFC2119">[RFC2119]</b>
+      </td>
+      <td class="top"><a>Bradner, S.</a>, "<a href="http://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC3339">[RFC3339]</b>
+      </td>
+      <td class="top"><a>Klyne, G.</a> and <a>C. Newman</a>, "<a href="http://tools.ietf.org/html/rfc3339">Date and Time on the Internet: Timestamps</a>", RFC 3339, DOI 10.17487/RFC3339, July 2002.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC3629">[RFC3629]</b>
+      </td>
+      <td class="top"><a>Yergeau, F.</a>, "<a href="http://tools.ietf.org/html/rfc3629">UTF-8, a transformation format of ISO 10646</a>", STD 63, RFC 3629, DOI 10.17487/RFC3629, November 2003.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC4648">[RFC4648]</b>
+      </td>
+      <td class="top"><a>Josefsson, S.</a>, "<a href="http://tools.ietf.org/html/rfc4648">The Base16, Base32, and Base64 Data Encodings</a>", RFC 4648, DOI 10.17487/RFC4648, October 2006.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="XML">[XML]</b>
+      </td>
+      <td class="top"><a href="mailto:tbray@textuality.com" title="Textuality and Netscape">Bray, T.</a>, <a href="mailto:jeanpa@microsoft.com" title="Microsoft">Paoli, J.</a>, <a href="mailto:cmsmcq@w3.org" title="W3C">Sperberg-McQueen, C.</a>, <a href="mailto:eve.maler@east.sun.com" title="Sun Microsystems, Inc.">Eve, E.</a> and <a>F. Yergeau</a>, "<a href="https://www.w3.org/TR/2008/REC-xml-20081126/">Extensible Markup Language (XML) 1.0 (Fifth Edition)</a>", November 2008.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="XMLSchema">[XMLSchema]</b>
+      </td>
+      <td class="top"><a href="mailto:ht@cogsci.ed.ac.uk" title="University of Edinburgh">Thompson, H.</a>, <a href="mailto:David.Beech@oracle.com" title="Oracle Corporation">Beech, D.</a>, <a href="mailto:murray@muzmo.com" title="Commerce One">Maloney, M.</a> and <a href="mailto:Noah_Mendelsohn@lotus.com" title="Lotus Development Corporation">N. Mendelsohn</a>, "<a href="https://www.w3.org/TR/xmlschema-1/">XML Schema Part 1: Structures Second Edition</a>", October 2004.</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="rfc.references.2"><a href="#rfc.references.2">5.2.</a> Informative References</h1>
+<table>
+  <tbody>
+    <tr>
+      <td class="reference">
+        <b id="RFC1952">[RFC1952]</b>
+      </td>
+      <td class="top"><a>Deutsch, P.</a>, "<a href="http://tools.ietf.org/html/rfc1952">GZIP file format specification version 4.3</a>", RFC 1952, DOI 10.17487/RFC1952, May 1996.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC4634">[RFC4634]</b>
+      </td>
+      <td class="top"><a>Eastlake 3rd, D.</a> and <a>T. Hansen</a>, "<a href="http://tools.ietf.org/html/rfc4634">US Secure Hash Algorithms (SHA and HMAC-SHA)</a>", RFC 4634, DOI 10.17487/RFC4634, July 2006.</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="rfc.authors">
+  <a href="#rfc.authors">Author's Address</a>
+</h1>
+<div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Janek Bevendorff</span> 
+	  <span class="n hidden">
+		<span class="family-name">Bevendorff</span>
+	  </span>
+	</span>
+	<span class="org vcardline">KeePassXC Team</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	
+  </address>
+</div>
+
+</body>
+</html>
