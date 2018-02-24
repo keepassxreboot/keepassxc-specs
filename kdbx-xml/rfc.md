@@ -267,22 +267,22 @@ to describe various database meta data.
     to keep in days when performing database maintenance.
 
 `<Color>`
-:   A *COLOR* that can be used for coloring the program icon or database tab
-    inside the password manager application.
+:   A *COLOR* that a graphical implementation MAY use to show a colored
+    application icon or database tab.
 
 `<MasterKeyChanged>`
 :   *DATETIME* of the last change of the database's master key.
 
 `<MasterKeyChangeRec>`
-:   *INTEGER* indicating the number of days after which the password manager
+:   *INTEGER* indicating the number of days after which an implementation
     SHOULD recommend changing the database's master key (-1 means 'never')
 
 `<MasterKeyChangeForce>`
-:   *INTEGER* indicating the number of days after which the password manager
+:   *INTEGER* indicating the number of days after which an implementation
     SHOULD force changing the database's master key (-1 means 'never')
 
 `<MasterKeyChangeForceOnce>`
-:   *BOOLEAN* indicating that the password manager SHOULD force changing the
+:   *BOOLEAN* indicating that an implementation SHOULD force changing the
     database's master key next time the database is opened.  This element SHOULD
     be removed or set to 'False' once the master key has been changed.
 
@@ -319,13 +319,13 @@ to describe various database meta data.
 `<HistoryMaxItems>`
 :   An *INTEGER* indicating the maximum number of items the history of
     an element may have (history items are described in (#entry-history)).
-    When the number of items in an entry's history exceeds this number, the
-    password manager SHOULD delete the oldest history items until the number
+    When the number of items in an entry's history exceeds this number, an
+    implementation SHOULD delete the oldest history items until the number
     of history items no longer exceeds this value.
 
 `<HistoryMaxSize>`
 :   An *INTEGER* indicating the maximum history size in bytes. If an entry's
-    history exceeds this size, the password manager SHOULD delete the oldest
+    history exceeds this size, an implementation SHOULD delete the oldest
     history items, until the total history size no longer exceeds this value.
 
 `<LastSelectedGroup>` (*REF*, *EPH*)
@@ -333,7 +333,7 @@ to describe various database meta data.
 
 `<LastTopVisibleGroup>` (*REF*, *EPH*)
 :   *UUID* of the top-most group that is still visible in the user's current
-    scroll view.  GUI implementations MAY use this element to save the
+    scroll view.  Graphical implementations MAY use this element to save the
     scroll state of the groups tree.  If an implementation decides not to store
     scroll information, this SHOULD point to the root group.
 
@@ -397,7 +397,7 @@ In addition, a group can have any of the following child elements at most once:
     (#times-and-expiry).
 
 `<IsExpanded>` (*EPH*)
-:   If a GUI implementation allows the user to expand and collapse sub trees,
+:   If a graphical implementation allows the user to expand and collapse sub trees,
     this element MAY contain a *BOOLEAN* indicating whether this group is
     expanded (`True`) or collapsed (`False`).  A collapsed group hides all
     it's child groups when displayed as a tree.
@@ -488,10 +488,10 @@ that can be set at group level.  See (#groups) for a description of this element
 As for groups, the container format MUST be KDBX 4.0 or higher if this
 element exists.
 
-#### Fixed Data
+#### Additional Entry Data
 
 Besides arbitrarily many `<String>` and `<Binary>` elements, the following
-*fixed-data* elements can occur at most once:
+elements can occur at most once:
 
 `<IconID>`
 :   The *INTEGER* identifier of a standard icon to display for this group.
@@ -602,8 +602,8 @@ adding the sizes of all entries in the history.
 The size of an entry SHOULD be calculated as the sum of its UTF-8 string data
 in bytes, including all `<String>`, `<Binary>`, and `<CustomData>` keys and
 values, Auto-Type `<Association>` window titles and sequences, `<Tags>`,
-`<OverrideURL>` and the remaining fixed data.  For simplicity, the latter
-MAY be estimated as `128`.
+`<OverrideURL>`.  For simplicity, the size of the remaining entry data MAY be
+estimated as `128`.
 
 The size of `<Binary>` values SHOULD calculated *after* Base64 decoding.  
 
@@ -651,6 +651,20 @@ the `<Times>` element can have any the following child elements at most once:
 :   *DATETIME* when this item was last re-located inside the group hierarchy.
     This MAY be updated whenever the parent of an item changes.
 
+### Recycle Bin
+
+If the `<RecycleBinEnabled>` element of the database's meta data section is set
+to `True`, an implementation MAY provide a recycle bin.  This is a regular group
+into which groups and entries are moved before they are permanently deleted
+from the database.
+
+The group that is used as recycle bin is referenced by the `<RecycleBinUUID>`
+meta data element.  Changes to the recycle bin SHOULD be reflected by
+`<RecycleBinChanged>`. 
+
+If a new group is created for the purpose of being used as a recycle bin, it
+SHOULD have the standard icon `43` (see (#standard-icons)).
+
 ### Deleted Objects
 
 When a group or an entry is deleted, an implementation MAY add a note about
@@ -666,6 +680,222 @@ provide an automatic or manual maintenance feature to clean up old deleted objec
 notes.
 
 # Standard Icons
+
+A graphical implementation SHOULD provide a set of standard icons, which groups and
+entries can reference by an *INTEGER* identifier.
+
+A total of 69 standard icons are specified.  Implementations MAY provide
+a reduced set, but SHOULD at least support displaying all specified icons.
+
+## List of Specified Standard Icons
+
+00
+:   An icon representing a generic password or key
+
+01
+:   An icon representing a network or networking
+
+02
+:   An icon representing a warning
+
+03
+:   Server
+
+04
+:   Clipboard or pinned notes
+
+05
+:   An icon representing language or communication
+
+06
+:   Set of blocks are packages
+
+07
+:   Text editor
+
+08
+:   An icon representing a network socket
+
+09
+:   An icon representing a user's identity
+
+10
+:   Address book
+
+11
+:   Camera or pictures
+
+12
+:   Wireless network
+
+13
+:   Key ring or set of keys
+
+14
+:   An icon representing electric power or energy
+
+15
+:   Scanner
+
+16
+:   An icon representing browser favorites or bookmarks
+
+17
+:   Optical storage medium
+
+18
+:   Monitor or display
+
+19
+:   E-Mail or letter
+
+20
+:   Gears or icon representing configurable settings
+
+21
+:   An icon representing a todo or check list
+
+22
+:   Empty text document
+
+23
+:   Computer desktop
+
+24
+:   An icon representing an established remote connection
+
+25
+:   E-Mail inbox
+
+26
+:   Floppy disk or save icon
+
+27
+:   An con representing remote storage
+
+28
+:   An icon representing digital media files
+
+29
+:   An icon representing a secure shell
+
+30
+:   Console or terminal
+
+31
+:   Printer
+
+32
+:   An icon representing disk space utilization
+
+33
+:   An icon representing launching a program
+
+34
+:   Wrench or icon representing configurable settings
+
+35
+:   An icon representing a computer connected to the Internet
+
+36
+:   An icon representing file compression
+
+37
+:   An icon representing a percentage
+
+38
+:   An icon representing a Windows file share
+
+39
+:   An icon representing time
+
+40
+:   Magnifying glass or an icon representing search
+
+41
+:   Splines or an icon representing vector graphics
+
+42
+:   Memory hardware
+
+43
+:   Recycle bin
+
+44
+:   Post-it note
+
+45
+:   Red cross or icon representing canceling an action
+
+46
+:   An icon representing usage help
+
+47
+:   Software package
+
+48
+:   Closed folder
+
+49
+:   Open folder
+
+50
+:   TAR archive
+
+51
+:   An icon representing decryption
+
+52
+:   An icon representing encryption
+
+53
+:   Green tick or an icon representing OK
+
+54
+:   Pen or signature
+
+55
+:   Thumbnail image preview
+
+56
+:   Address book
+
+57
+:   An entry representing tabular data
+
+58
+:   An icon representing a cryptographic private key
+
+59
+:   An icon representing software or package development
+
+60
+:   An icon representing a user's home folder
+
+61
+:   A star or an icon representing favorites
+
+62
+:   Tux penguin
+
+63
+:   Feather or an icon representing the Apache web server
+
+64
+:   Apple or an icon representing macOS
+
+65
+:   An icon representing Wikipedia
+
+66
+:   An icon representing money or finances
+
+67
+:   An icon representing a digital certificate
+
+68
+:   A mobile device
+
 
 # Security Considerations
 

@@ -283,18 +283,18 @@ The username to use as a default when creating a new entry in the database.</t>
 <spanx style="emph">INTEGER</spanx> indicating the maximum age of the oldest history item
 to keep in days when performing database maintenance.</t>
 <t hangText="&lt;Color&gt;">
-A <spanx style="emph">COLOR</spanx> that can be used for coloring the program icon or database tab
-inside the password manager application.</t>
+A <spanx style="emph">COLOR</spanx> that a graphical implementation MAY use to show a colored
+application icon or database tab.</t>
 <t hangText="&lt;MasterKeyChanged&gt;">
 <spanx style="emph">DATETIME</spanx> of the last change of the database's master key.</t>
 <t hangText="&lt;MasterKeyChangeRec&gt;">
-<spanx style="emph">INTEGER</spanx> indicating the number of days after which the password manager
+<spanx style="emph">INTEGER</spanx> indicating the number of days after which an implementation
 SHOULD recommend changing the database's master key (-1 means 'never')</t>
 <t hangText="&lt;MasterKeyChangeForce&gt;">
-<spanx style="emph">INTEGER</spanx> indicating the number of days after which the password manager
+<spanx style="emph">INTEGER</spanx> indicating the number of days after which an implementation
 SHOULD force changing the database's master key (-1 means 'never')</t>
 <t hangText="&lt;MasterKeyChangeForceOnce&gt;">
-<spanx style="emph">BOOLEAN</spanx> indicating that the password manager SHOULD force changing the
+<spanx style="emph">BOOLEAN</spanx> indicating that an implementation SHOULD force changing the
 database's master key next time the database is opened.  This element SHOULD
 be removed or set to 'False' once the master key has been changed.</t>
 <t hangText="&lt;MemoryProtection&gt;">
@@ -323,18 +323,18 @@ new entries.</t>
 <t hangText="&lt;HistoryMaxItems&gt;">
 An <spanx style="emph">INTEGER</spanx> indicating the maximum number of items the history of
 an element may have (history items are described in <xref target="entry-history"/>).
-When the number of items in an entry's history exceeds this number, the
-password manager SHOULD delete the oldest history items until the number
+When the number of items in an entry's history exceeds this number, an
+implementation SHOULD delete the oldest history items until the number
 of history items no longer exceeds this value.</t>
 <t hangText="&lt;HistoryMaxSize&gt;">
 An <spanx style="emph">INTEGER</spanx> indicating the maximum history size in bytes. If an entry's
-history exceeds this size, the password manager SHOULD delete the oldest
+history exceeds this size, an implementation SHOULD delete the oldest
 history items, until the total history size no longer exceeds this value.</t>
 <t hangText="&lt;LastSelectedGroup&gt; (REF, EPH)">
 <spanx style="emph">UUID</spanx> of the group that was last selected by the user.</t>
 <t hangText="&lt;LastTopVisibleGroup&gt; (REF, EPH)">
 <spanx style="emph">UUID</spanx> of the top-most group that is still visible in the user's current
-scroll view.  GUI implementations MAY use this element to save the
+scroll view.  Graphical implementations MAY use this element to save the
 scroll state of the groups tree.  If an implementation decides not to store
 scroll information, this SHOULD point to the root group.</t>
 <t hangText="&lt;Binaries&gt; (KDBX 3.1)">
@@ -397,7 +397,7 @@ A complex XML type containing information about the group's last access,
 modification, or expiry date and time. A detailed description is given in
 <xref target="times-and-expiry"/>.</t>
 <t hangText="&lt;IsExpanded&gt; (EPH)">
-If a GUI implementation allows the user to expand and collapse sub trees,
+If a graphical implementation allows the user to expand and collapse sub trees,
 this element MAY contain a <spanx style="emph">BOOLEAN</spanx> indicating whether this group is
 expanded (<spanx style="verb">True</spanx>) or collapsed (<spanx style="verb">False</spanx>).  A collapsed group hides all
 it's child groups when displayed as a tree.</t>
@@ -485,9 +485,9 @@ As for groups, the container format MUST be KDBX 4.0 or higher if this
 element exists.
 </t>
 
-<section anchor="fixed-data" title="Fixed Data">
+<section anchor="additional-entry-data" title="Additional Entry Data">
 <t>Besides arbitrarily many <spanx style="verb">&lt;String&gt;</spanx> and <spanx style="verb">&lt;Binary&gt;</spanx> elements, the following
-<spanx style="emph">fixed-data</spanx> elements can occur at most once:
+elements can occur at most once:
 </t>
 <t>
 <list style="hanging">
@@ -599,8 +599,8 @@ adding the sizes of all entries in the history.
 <t>The size of an entry SHOULD be calculated as the sum of its UTF-8 string data
 in bytes, including all <spanx style="verb">&lt;String&gt;</spanx>, <spanx style="verb">&lt;Binary&gt;</spanx>, and <spanx style="verb">&lt;CustomData&gt;</spanx> keys and
 values, Auto-Type <spanx style="verb">&lt;Association&gt;</spanx> window titles and sequences, <spanx style="verb">&lt;Tags&gt;</spanx>,
-<spanx style="verb">&lt;OverrideURL&gt;</spanx> and the remaining fixed data.  For simplicity, the latter
-MAY be estimated as <spanx style="verb">128</spanx>.
+<spanx style="verb">&lt;OverrideURL&gt;</spanx>.  For simplicity, the size of the remaining entry data MAY be
+estimated as <spanx style="verb">128</spanx>.
 </t>
 <t>The size of <spanx style="verb">&lt;Binary&gt;</spanx> values SHOULD calculated <spanx style="emph">after</spanx> Base64 decoding.
 </t>
@@ -649,6 +649,21 @@ This MAY be updated whenever the parent of an item changes.</t>
 </t>
 </section>
 
+<section anchor="recycle-bin" title="Recycle Bin">
+<t>If the <spanx style="verb">&lt;RecycleBinEnabled&gt;</spanx> element of the database's meta data section is set
+to <spanx style="verb">True</spanx>, an implementation MAY provide a recycle bin.  This is a regular group
+into which groups and entries are moved before they are permanently deleted
+from the database.
+</t>
+<t>The group that is used as recycle bin is referenced by the <spanx style="verb">&lt;RecycleBinUUID&gt;</spanx>
+meta data element.  Changes to the recycle bin SHOULD be reflected by
+<spanx style="verb">&lt;RecycleBinChanged&gt;</spanx>.
+</t>
+<t>If a new group is created for the purpose of being used as a recycle bin, it
+SHOULD have the standard icon <spanx style="verb">43</spanx> (see <xref target="standard-icons"/>).
+</t>
+</section>
+
 <section anchor="deleted-objects" title="Deleted Objects">
 <t>When a group or an entry is deleted, an implementation MAY add a note about
 this deletion in <spanx style="verb">&lt;DeletedObjects&gt;</spanx> of the data section.  This is to allow proper
@@ -667,6 +682,157 @@ notes.
 </section>
 
 <section anchor="standard-icons" title="Standard Icons">
+<t>A graphical implementation SHOULD provide a set of standard icons, which groups and
+entries can reference by an <spanx style="emph">INTEGER</spanx> identifier.
+</t>
+<t>A total of 69 standard icons are specified.  Implementations MAY provide
+a reduced set, but SHOULD at least support displaying all specified icons.
+</t>
+
+<section anchor="list-of-specified-standard-icons" title="List of Specified Standard Icons">
+<t>
+<list style="hanging">
+<t hangText="00">
+An icon representing a generic password or key</t>
+<t hangText="01">
+An icon representing a network or networking</t>
+<t hangText="02">
+An icon representing a warning</t>
+<t hangText="03">
+Server</t>
+<t hangText="04">
+Clipboard or pinned notes</t>
+<t hangText="05">
+An icon representing language or communication</t>
+<t hangText="06">
+Set of blocks are packages</t>
+<t hangText="07">
+Text editor</t>
+<t hangText="08">
+An icon representing a network socket</t>
+<t hangText="09">
+An icon representing a user's identity</t>
+<t hangText="10">
+Address book</t>
+<t hangText="11">
+Camera or pictures</t>
+<t hangText="12">
+Wireless network</t>
+<t hangText="13">
+Key ring or set of keys</t>
+<t hangText="14">
+An icon representing electric power or energy</t>
+<t hangText="15">
+Scanner</t>
+<t hangText="16">
+An icon representing browser favorites or bookmarks</t>
+<t hangText="17">
+Optical storage medium</t>
+<t hangText="18">
+Monitor or display</t>
+<t hangText="19">
+E-Mail or letter</t>
+<t hangText="20">
+Gears or icon representing configurable settings</t>
+<t hangText="21">
+An icon representing a todo or check list</t>
+<t hangText="22">
+Empty text document</t>
+<t hangText="23">
+Computer desktop</t>
+<t hangText="24">
+An icon representing an established remote connection</t>
+<t hangText="25">
+E-Mail inbox</t>
+<t hangText="26">
+Floppy disk or save icon</t>
+<t hangText="27">
+An con representing remote storage</t>
+<t hangText="28">
+An icon representing digital media files</t>
+<t hangText="29">
+An icon representing a secure shell</t>
+<t hangText="30">
+Console or terminal</t>
+<t hangText="31">
+Printer</t>
+<t hangText="32">
+An icon representing disk space utilization</t>
+<t hangText="33">
+An icon representing launching a program</t>
+<t hangText="34">
+Wrench or icon representing configurable settings</t>
+<t hangText="35">
+An icon representing a computer connected to the Internet</t>
+<t hangText="36">
+An icon representing file compression</t>
+<t hangText="37">
+An icon representing a percentage</t>
+<t hangText="38">
+An icon representing a Windows file share</t>
+<t hangText="39">
+An icon representing time</t>
+<t hangText="40">
+Magnifying glass or an icon representing search</t>
+<t hangText="41">
+Splines or an icon representing vector graphics</t>
+<t hangText="42">
+Memory hardware</t>
+<t hangText="43">
+Recycle bin</t>
+<t hangText="44">
+Post-it note</t>
+<t hangText="45">
+Red cross or icon representing canceling an action</t>
+<t hangText="46">
+An icon representing usage help</t>
+<t hangText="47">
+Software package</t>
+<t hangText="48">
+Closed folder</t>
+<t hangText="49">
+Open folder</t>
+<t hangText="50">
+TAR archive</t>
+<t hangText="51">
+An icon representing decryption</t>
+<t hangText="52">
+An icon representing encryption</t>
+<t hangText="53">
+Green tick or an icon representing OK</t>
+<t hangText="54">
+Pen or signature</t>
+<t hangText="55">
+Thumbnail image preview</t>
+<t hangText="56">
+Address book</t>
+<t hangText="57">
+An entry representing tabular data</t>
+<t hangText="58">
+An icon representing a cryptographic private key</t>
+<t hangText="59">
+An icon representing software or package development</t>
+<t hangText="60">
+An icon representing a user's home folder</t>
+<t hangText="61">
+A star or an icon representing favorites</t>
+<t hangText="62">
+Tux penguin</t>
+<t hangText="63">
+Feather or an icon representing the Apache web server</t>
+<t hangText="64">
+Apple or an icon representing macOS</t>
+<t hangText="65">
+An icon representing Wikipedia</t>
+<t hangText="66">
+An icon representing money or finances</t>
+<t hangText="67">
+An icon representing a digital certificate</t>
+<t hangText="68">
+A mobile device</t>
+</list>
+</t>
+</section>
 </section>
 
 <section anchor="security-considerations" title="Security Considerations">

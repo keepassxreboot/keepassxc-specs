@@ -58,13 +58,15 @@ Bevendorff               Expires August 23, 2018                [Page 1]
                               KeePass2 XML                 February 2018
 
 
-       3.4.4.  Deleted Objects . . . . . . . . . . . . . . . . . . .  14
+       3.4.4.  Recycle Bin . . . . . . . . . . . . . . . . . . . . .  14
+       3.4.5.  Deleted Objects . . . . . . . . . . . . . . . . . . .  15
    4.  Standard Icons  . . . . . . . . . . . . . . . . . . . . . . .  15
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  15
-   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  15
-     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  15
-     6.2.  Informative References  . . . . . . . . . . . . . . . . .  16
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  16
+     4.1.  List of Specified Standard Icons  . . . . . . . . . . . .  15
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  18
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  18
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  18
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .  19
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  19
 
 1.  Introduction
 
@@ -104,8 +106,6 @@ Bevendorff               Expires August 23, 2018                [Page 1]
    The meta data section contains general information about the database
    itself, maintenance information (e.g., when and how to clean up
    deleted entries), access and modification information (e.g., date and
-   time of the last database title change), and additional global
-   resources (e.g., custom icons).
 
 
 
@@ -113,6 +113,9 @@ Bevendorff               Expires August 23, 2018                [Page 2]
 
                               KeePass2 XML                 February 2018
 
+
+   time of the last database title change), and additional global
+   resources (e.g., custom icons).
 
    The data section contains the actual user data as a tree structure of
    _groups_ and _entries_.
@@ -159,9 +162,6 @@ Bevendorff               Expires August 23, 2018                [Page 2]
       characters in the range 0 to 9.  _INTEGERs_ can have a negative
       sign "-" in front.
 
-   o  A _BOOLEAN_ is represented by the strings "True" and "False".  The
-      alternative forms "true" and "false", as well as "1" and "0", are
-      also possible.
 
 
 
@@ -169,6 +169,10 @@ Bevendorff               Expires August 23, 2018                [Page 3]
 
                               KeePass2 XML                 February 2018
 
+
+   o  A _BOOLEAN_ is represented by the strings "True" and "False".  The
+      alternative forms "true" and "false", as well as "1" and "0", are
+      also possible.
 
    o  An _OPT BOOLEAN_ is the same as a _BOOLEAN_ with the additional
       allowed value "Null" (or "null") which stands for no definite
@@ -213,10 +217,6 @@ Bevendorff               Expires August 23, 2018                [Page 3]
    "AAAAAAAAAAAAAAAAAAAAAA==").  Where allowed, the referencing element
    MAY also be skipped instead of using the zero UUID.
 
-   If a _UUID_ element is a reference and the UUID is not the zero UUID,
-   the referenced resource MUST exist.
-
-   The zero UUID itself MUST NOT be used as a _KEY_.
 
 
 
@@ -225,6 +225,11 @@ Bevendorff               Expires August 23, 2018                [Page 4]
 
                               KeePass2 XML                 February 2018
 
+
+   If a _UUID_ element is a reference and the UUID is not the zero UUID,
+   the referenced resource MUST exist.
+
+   The zero UUID itself MUST NOT be used as a _KEY_.
 
 3.1.4.  Trivial Changes
 
@@ -268,12 +273,7 @@ Bevendorff               Expires August 23, 2018                [Page 4]
 
    Besides the database's root group, "<Root>" MAY also contain
    historical records of deleted objects, whose format is described in
-   Section 3.4.4.
-
-
-
-
-
+   Section 3.4.5.
 
 
 
@@ -318,15 +318,15 @@ Bevendorff               Expires August 23, 2018                [Page 5]
       oldest history item to keep in days when performing database
       maintenance.
 
-   <Color>  A _COLOR_ that can be used for coloring the program icon or
-      database tab inside the password manager application.
+   <Color>  A _COLOR_ that a graphical implementation MAY use to show a
+      colored application icon or database tab.
 
    <MasterKeyChanged>  _DATETIME_ of the last change of the database's
       master key.
 
    <MasterKeyChangeRec>  _INTEGER_ indicating the number of days after
-      which the password manager SHOULD recommend changing the
-      database's master key (-1 means 'never')
+      which an implementation SHOULD recommend changing the database's
+      master key (-1 means 'never')
 
 
 
@@ -339,13 +339,13 @@ Bevendorff               Expires August 23, 2018                [Page 6]
 
 
    <MasterKeyChangeForce>  _INTEGER_ indicating the number of days after
-      which the password manager SHOULD force changing the database's
+      which an implementation SHOULD force changing the database's
       master key (-1 means 'never')
 
-   <MasterKeyChangeForceOnce>  _BOOLEAN_ indicating that the password
-      manager SHOULD force changing the database's master key next time
-      the database is opened.  This element SHOULD be removed or set to
-      'False' once the master key has been changed.
+   <MasterKeyChangeForceOnce>  _BOOLEAN_ indicating that an
+      implementation SHOULD force changing the database's master key
+      next time the database is opened.  This element SHOULD be removed
+      or set to 'False' once the master key has been changed.
 
    <MemoryProtection>  A complex XML type for configuring which fields
       SHOULD be protected by in-memory encryption at runtime.  The
@@ -379,12 +379,12 @@ Bevendorff               Expires August 23, 2018                [Page 6]
    <HistoryMaxItems>  An _INTEGER_ indicating the maximum number of
       items the history of an element may have (history items are
       described in Section 3.4.2.3).  When the number of items in an
-      entry's history exceeds this number, the password manager SHOULD
+      entry's history exceeds this number, an implementation SHOULD
       delete the oldest history items until the number of history items
       no longer exceeds this value.
 
    <HistoryMaxSize>  An _INTEGER_ indicating the maximum history size in
-      bytes.  If an entry's history exceeds this size, the password
+      bytes.  If an entry's history exceeds this size, an implementation
 
 
 
@@ -394,14 +394,14 @@ Bevendorff               Expires August 23, 2018                [Page 7]
                               KeePass2 XML                 February 2018
 
 
-      manager SHOULD delete the oldest history items, until the total
-      history size no longer exceeds this value.
+      SHOULD delete the oldest history items, until the total history
+      size no longer exceeds this value.
 
    <LastSelectedGroup> (REF, EPH)  _UUID_ of the group that was last
       selected by the user.
 
    <LastTopVisibleGroup> (REF, EPH)  _UUID_ of the top-most group that
-      is still visible in the user's current scroll view.  GUI
+      is still visible in the user's current scroll view.  Graphical
       implementations MAY use this element to save the scroll state of
       the groups tree.  If an implementation decides not to store scroll
       information, this SHOULD point to the root group.
@@ -470,11 +470,11 @@ Bevendorff               Expires August 23, 2018                [Page 8]
       last access, modification, or expiry date and time.  A detailed
       description is given in Section 3.4.3.
 
-   <IsExpanded> (EPH)  If a GUI implementation allows the user to expand
-      and collapse sub trees, this element MAY contain a _BOOLEAN_
-      indicating whether this group is expanded ("True") or collapsed
-      ("False").  A collapsed group hides all it's child groups when
-      displayed as a tree.
+   <IsExpanded> (EPH)  If a graphical implementation allows the user to
+      expand and collapse sub trees, this element MAY contain a
+      _BOOLEAN_ indicating whether this group is expanded ("True") or
+      collapsed ("False").  A collapsed group hides all it's child
+      groups when displayed as a tree.
 
    <DefaultAutoTypeSequence>  The default Auto-Type sequence to use for
       entries and sub groups in this group.  This overrides an
@@ -578,10 +578,10 @@ Bevendorff               Expires August 23, 2018               [Page 10]
    description of this element.  As for groups, the container format
    MUST be KDBX 4.0 or higher if this element exists.
 
-3.4.2.1.  Fixed Data
+3.4.2.1.  Additional Entry Data
 
    Besides arbitrarily many "<String>" and "<Binary>" elements, the
-   following _fixed-data_ elements can occur at most once:
+   following elements can occur at most once:
 
    <IconID>  The _INTEGER_ identifier of a standard icon to display for
       this group.  Standard icons are described in Section 4
@@ -706,8 +706,8 @@ Bevendorff               Expires August 23, 2018               [Page 12]
    The size of an entry SHOULD be calculated as the sum of its UTF-8
    string data in bytes, including all "<String>", "<Binary>", and
    "<CustomData>" keys and values, Auto-Type "<Association>" window
-   titles and sequences, "<Tags>", "<OverrideURL>" and the remaining
-   fixed data.  For simplicity, the latter MAY be estimated as "128".
+   titles and sequences, "<Tags>", "<OverrideURL>".  For simplicity, the
+   size of the remaining entry data MAY be estimated as "128".
 
    The size of "<Binary>" values SHOULD calculated _after_ Base64
    decoding.
@@ -763,7 +763,30 @@ Bevendorff               Expires August 23, 2018               [Page 13]
       inside the group hierarchy.  This MAY be updated whenever the
       parent of an item changes.
 
-3.4.4.  Deleted Objects
+3.4.4.  Recycle Bin
+
+   If the "<RecycleBinEnabled>" element of the database's meta data
+   section is set to "True", an implementation MAY provide a recycle
+   bin.  This is a regular group into which groups and entries are moved
+   before they are permanently deleted from the database.
+
+   The group that is used as recycle bin is referenced by the
+   "<RecycleBinUUID>" meta data element.  Changes to the recycle bin
+   SHOULD be reflected by "<RecycleBinChanged>".
+
+   If a new group is created for the purpose of being used as a recycle
+   bin, it SHOULD have the standard icon "43" (see Section 4).
+
+
+
+
+
+Bevendorff               Expires August 23, 2018               [Page 14]
+
+                              KeePass2 XML                 February 2018
+
+
+3.4.5.  Deleted Objects
 
    When a group or an entry is deleted, an implementation MAY add a note
    about this deletion in "<DeletedObjects>" of the data section.  This
@@ -778,15 +801,178 @@ Bevendorff               Expires August 23, 2018               [Page 13]
    SHOULD also provide an automatic or manual maintenance feature to
    clean up old deleted object notes.
 
+4.  Standard Icons
+
+   A graphical implementation SHOULD provide a set of standard icons,
+   which groups and entries can reference by an _INTEGER_ identifier.
+
+   A total of 69 standard icons are specified.  Implementations MAY
+   provide a reduced set, but SHOULD at least support displaying all
+   specified icons.
+
+4.1.  List of Specified Standard Icons
+
+   00 An icon representing a generic password or key
+
+   01 An icon representing a network or networking
+
+   02 An icon representing a warning
+
+   03 Server
+
+   04 Clipboard or pinned notes
+
+   05 An icon representing language or communication
+
+   06 Set of blocks are packages
+
+   07 Text editor
+
+   08 An icon representing a network socket
+
+   09 An icon representing a user's identity
+
+   10 Address book
 
 
 
-Bevendorff               Expires August 23, 2018               [Page 14]
+
+Bevendorff               Expires August 23, 2018               [Page 15]
 
                               KeePass2 XML                 February 2018
 
 
-4.  Standard Icons
+   11 Camera or pictures
+
+   12 Wireless network
+
+   13 Key ring or set of keys
+
+   14 An icon representing electric power or energy
+
+   15 Scanner
+
+   16 An icon representing browser favorites or bookmarks
+
+   17 Optical storage medium
+
+   18 Monitor or display
+
+   19 E-Mail or letter
+
+   20 Gears or icon representing configurable settings
+
+   21 An icon representing a todo or check list
+
+   22 Empty text document
+
+   23 Computer desktop
+
+   24 An icon representing an established remote connection
+
+   25 E-Mail inbox
+
+   26 Floppy disk or save icon
+
+   27 An con representing remote storage
+
+   28 An icon representing digital media files
+
+   29 An icon representing a secure shell
+
+   30 Console or terminal
+
+   31 Printer
+
+   32 An icon representing disk space utilization
+
+   33 An icon representing launching a program
+
+   34 Wrench or icon representing configurable settings
+
+
+
+
+Bevendorff               Expires August 23, 2018               [Page 16]
+
+                              KeePass2 XML                 February 2018
+
+
+   35 An icon representing a computer connected to the Internet
+
+   36 An icon representing file compression
+
+   37 An icon representing a percentage
+
+   38 An icon representing a Windows file share
+
+   39 An icon representing time
+
+   40 Magnifying glass or an icon representing search
+
+   41 Splines or an icon representing vector graphics
+
+   42 Memory hardware
+
+   43 Recycle bin
+
+   44 Post-it note
+
+   45 Red cross or icon representing canceling an action
+
+   46 An icon representing usage help
+
+   47 Software package
+
+   48 Closed folder
+
+   49 Open folder
+
+   50 TAR archive
+
+   51 An icon representing decryption
+
+   52 An icon representing encryption
+
+   53 Green tick or an icon representing OK
+
+   54 Pen or signature
+
+   55 Thumbnail image preview
+
+   56 Address book
+
+   57 An entry representing tabular data
+
+   58 An icon representing a cryptographic private key
+
+
+
+
+Bevendorff               Expires August 23, 2018               [Page 17]
+
+                              KeePass2 XML                 February 2018
+
+
+   59 An icon representing software or package development
+
+   60 An icon representing a user's home folder
+
+   61 A star or an icon representing favorites
+
+   62 Tux penguin
+
+   63 Feather or an icon representing the Apache web server
+
+   64 Apple or an icon representing macOS
+
+   65 An icon representing Wikipedia
+
+   66 An icon representing money or finances
+
+   67 An icon representing a digital certificate
+
+   68 A mobile device
 
 5.  Security Considerations
 
@@ -817,6 +1003,13 @@ Bevendorff               Expires August 23, 2018               [Page 14]
               10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
               2003, <https://www.rfc-editor.org/info/rfc3629>.
 
+
+
+Bevendorff               Expires August 23, 2018               [Page 18]
+
+                              KeePass2 XML                 February 2018
+
+
    [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
               Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
               <https://www.rfc-editor.org/info/rfc4648>.
@@ -830,17 +1023,6 @@ Bevendorff               Expires August 23, 2018               [Page 14]
               Thompson, H., Beech, D., Maloney, M., and N. Mendelsohn,
               "XML Schema Part 1: Structures Second Edition", October
               2004, <https://www.w3.org/TR/xmlschema-1/>.
-
-
-
-
-
-
-
-Bevendorff               Expires August 23, 2018               [Page 15]
-
-                              KeePass2 XML                 February 2018
-
 
 6.2.  Informative References
 
@@ -879,18 +1061,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Bevendorff               Expires August 23, 2018               [Page 16]
+Bevendorff               Expires August 23, 2018               [Page 19]
