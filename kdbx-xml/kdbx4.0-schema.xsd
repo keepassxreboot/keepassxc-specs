@@ -87,17 +87,14 @@
         </xs:all>
     </xs:complexType>
 
-    <!-- Key / Value element types for string and binary contents
-         with optional encrypted inner stream and in-memory protection -->
-    <xs:attributeGroup name="ProtectionAttributes">
-        <xs:attribute name="Protected" type="BooleanType"/>
-        <xs:attribute name="ProtectInMemory" type="BooleanType"/>
-    </xs:attributeGroup>
+    <!-- Global attribute for encrypted data -->
+    <xs:attribute name="Protected" type="BooleanType"/>
 
+    <!-- Memory-protectable string map -->
     <xs:complexType name="ProtectableString">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attributeGroup ref="ProtectionAttributes"/>
+                <xs:attribute name="ProtectInMemory" type="BooleanType"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

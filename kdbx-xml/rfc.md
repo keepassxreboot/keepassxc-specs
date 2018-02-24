@@ -771,7 +771,7 @@ a reduced set, but SHOULD at least support displaying all specified icons.
 :   Floppy disk or save icon
 
 27
-:   An con representing remote storage
+:   An icon representing remote storage
 
 28
 :   An icon representing digital media files

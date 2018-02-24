@@ -874,7 +874,7 @@ Bevendorff               Expires August 23, 2018               [Page 15]
 
    26 Floppy disk or save icon
 
-   27 An con representing remote storage
+   27 An icon representing remote storage
 
    28 An icon representing digital media files
 
